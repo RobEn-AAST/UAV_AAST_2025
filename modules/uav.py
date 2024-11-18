@@ -7,7 +7,7 @@ from pymavlink import mavutil, mavwp
 
 class uav :
     def __init__(self,vehicle,waypoints_file,fence_file,payload_file,config_file) -> None:
-        self.waypointfile = waypoints_file
+        self.waypoint_file = waypoints_file
         self.fence_file = fence_file
         self.payload_file = payload_file
         self.vehicle = vehicle
@@ -17,6 +17,11 @@ class uav :
 
     # fence upload function    
     def upload_fence(self):
+        # print("upload fence from csv  file (1) \nor from .waypoint file (2)")
+        # the_choice = input("Enter connection number.....  \n")
+        # if the_choice == '1':
+        #
+        # elif the_choice == '2':
 
         # this is the fence cords
         fence_list = []
@@ -347,6 +352,7 @@ class uav :
 
 
     def takeoff_sequence(self):
+        self.add_home()
         try:
             with open(self.config_file, 'r') as f:
                 # Load JSON data
@@ -383,10 +389,11 @@ class uav :
 
         
     def add_mission_waypoints(self):
+
         waypoint_list = []
 
         try:
-            with open(self.waypointfile, mode='r') as file:
+            with open(self.waypoint_file, mode='r') as file:
 
                 csv_reader = csv.reader(file)
 
@@ -397,7 +404,7 @@ class uav :
                     lat, long, alt = float(row[0]), float(row[1]),float(row[2])
                     waypoint_list.append([lat, long, alt]) 
         except FileNotFoundError:
-             print(f"CSV file '{self.waypointfile}' not found.")
+             print(f"CSV file '{self.waypoint_file}' not found.")
              return
         except Exception as e:
              print(f"An error occurred while reading the CSV file: {e}")
@@ -439,4 +446,7 @@ class uav :
             mavutil.mavlink.MAV_CMD_DO_SET_HOME,
             0, 1, 0, 0, 0, 0,
             home[0], home[1], 0))
-    
+
+
+    def landing_sequence(self):
+        pass

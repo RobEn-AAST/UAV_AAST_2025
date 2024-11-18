@@ -4,6 +4,7 @@ from modules.mission1 import mission1
 from modules.mission2 import mission2
 from modules.mission3 import mission3
 from modules.uav import uav
+from modules.convertor20 import Convertor
 import json
 
 config_file = 'C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/data.json'
@@ -29,6 +30,7 @@ print("connection 2 is 'cocowawa' for raspberry pi")
 connection_string1 = '172.30.64.1:14550'
 connection_string2 = config_data["raspberry_pi_connection_string"]
 the_choice = input("Enter connection number.....  \n")
+master = None
 if the_choice == '1':
     master = mavutil.mavlink_connection(connection_string1)
     master.wait_heartbeat()

@@ -11,5 +11,5 @@
     "take_off_alt":50,
     "take_off_angle":15,
     "ip_range" :"192.168.1.1/24",
-    "raspery_pi_connection_strning":"coco"
+    "raspberry_pi_connection_string":"coco"
 }

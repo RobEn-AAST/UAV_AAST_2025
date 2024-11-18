@@ -402,21 +402,31 @@ class uav :
 
         try:
             with open(self.waypoint_file, mode='r') as file:
-
                 csv_reader = csv.reader(file)
 
+                # Convert CSV content to a list of lines
                 lines = list(csv_reader)
 
-                # Iterate over the rows and append lat, long to the coordinates list
+                # Iterate over the rows, skipping the header
                 for i, row in enumerate(lines[1:]):
-                    lat, long, alt = float(row[0]), float(row[1]),float(row[2])
-                    waypoint_list.append([lat, long, alt]) 
+                    try:
+                        # Ensure the row is processed correctly
+                        row = ' '.join(row).split()
+                        lat, long, alt = float(row[0]), float(row[1]), float(row[2])
+                        waypoint_list.append([lat, long, alt])
+                    except ValueError as ve:
+                        print(f"Skipping malformed row at line {i + 2}: {row} (Error: {ve})")
         except FileNotFoundError:
-             print(f"CSV file '{self.waypoint_file}' not found.")
-             return
+            print(f"CSV file '{self.waypoint_file}' not found.")
+            return
         except Exception as e:
-             print(f"An error occurred while reading the CSV file: {e}")
-             return
+            print(f"An error occurred while reading the CSV file: {e}")
+            return
+
+        if not waypoint_list:
+            print("No valid waypoints found in the file.")
+        else:
+            print(f"Successfully loaded {len(waypoint_list)} waypoints.")
         
         
         for i in range(len(waypoint_list)):

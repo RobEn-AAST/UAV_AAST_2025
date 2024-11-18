@@ -468,3 +468,7 @@ class uav :
 
     def landing_sequence(self):
         pass
+
+
+    def add_drop_location(self):
+        pass

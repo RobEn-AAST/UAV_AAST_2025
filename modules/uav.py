@@ -54,7 +54,15 @@ class uav :
                 next(csv_reader)
                 # Iterate over the rows and append lat, long to the coordinates list
                 for i, row in enumerate(csv_reader):
-                    lat, long = float(row[0]), float(row[1])
+                    row = ' '.join(row).split()
+                    if len(row) == 3:
+                        try:
+                            lat, long, alt = map(float, row)
+                            print(f"Latitude: {lat}, Longitude: {long}, Altitude: {alt}")
+                        except ValueError as e:
+                            print(f"Error converting values: {row}. Error: {e}")
+                    else:
+                        print(f"Invalid row format: {row}")
                     fence_list.append([lat, long])
                     # Save the first coordinate to add it again at the end
                     if i == 0:

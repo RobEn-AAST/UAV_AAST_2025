@@ -2,7 +2,7 @@
     "waypoints_file_waypoint":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/mission1.waypoints",
     "waypoints_file_csv":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/waypoints.csv",
     "fence_file_waypoint": "C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/fence.waypoints",
-    "fence_file_csv":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/.csv",
+    "fence_file_csv":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/fence.csv",
     "payload_file_waypoint": "C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/payload.waypoints",
     "payload_file_csv":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/payload.csv",
     "network_ips_csv":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/network_ips.csv",

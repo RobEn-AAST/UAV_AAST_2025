@@ -1,5 +1,4 @@
 from pymavlink import mavutil
-from modules.txt_csv import WaypointsConverter
 from modules.mission1 import mission1
 from modules.mission2 import mission2
 from modules.mission3 import mission3
@@ -35,7 +34,7 @@ print("connection 1 is '127.0.0.1:14550' for local host")
 print("connection 2 is for raspberry pi")
 print("connection 3 for telemetry system")
 
-the_choice = input("Enter connection number:  \n")
+the_choice = input("Enter connection number:  ")
 master = None
 if the_choice == '1':
     master = mavutil.mavlink_connection(connection_string1)
@@ -47,18 +46,49 @@ elif the_choice == '3':
     master = mavutil.mavlink_connection(connection_string2)
     master.wait_heartbeat()
 
-print("Heartbeat from system (system %u component %u)" % (master.target_system, master.target_component))
+print("\nHeartbeat from system (system %u component %u)\n" % (master.target_system, master.target_component))
 
-print("do you have ready csv files or you want to convert .waypoints to csv")
+print("do you have ready csv files or you want to convert .waypoints to csv\n")
 print("enter 1 if you have ready csv file")
-print("enter 2 if you want to me to convert .waypoint files")
+print("enter 2 if you want to me to convert .waypoint files\n")
 
-the_choice = input("Enter the option number:  \n")
+the_choice = input("Enter the option number:  ")
 
 if the_choice == "2":
     convert = Convertor()
-    convert.convert_to_csv("C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/test/mission1.waypoints","C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/test/waypoints.csv")
+    print("Enter 111 to convert waypoint,fence and payload files.")
+    print(
+        "For any file you don't want to convert, use '0'. For example, '101' will convert the waypoint and payload files while leaving the fence file unchanged.")
 
+    valid_inputs = {'111', '110', '101', '100', '011', '010', '001', '000'}
+    while True:
+        the_choice = input("Enter the option number: ")
+
+        if the_choice in valid_inputs:
+            if the_choice == '111':
+                convert.convert_to_csv(config_data['waypoints_file_waypoint'], config_data['waypoints_file_csv'])
+                convert.convert_to_csv(config_data['fence_file_waypoint'], config_data['fence_file_csv'])
+                convert.convert_to_csv(config_data['payload_file_waypoint'], config_data['payload_file_csv'])
+            elif the_choice == '110':
+                convert.convert_to_csv(config_data['waypoints_file_waypoint'], config_data['waypoints_file_csv'])
+                convert.convert_to_csv(config_data['fence_file_waypoint'], config_data['fence_file_csv'])
+            elif the_choice == '101':
+                convert.convert_to_csv(config_data['waypoints_file_waypoint'], config_data['waypoints_file_csv'])
+                convert.convert_to_csv(config_data['payload_file_waypoint'], config_data['payload_file_csv'])
+            elif the_choice == '100':
+                convert.convert_to_csv(config_data['waypoints_file_waypoint'], config_data['waypoints_file_csv'])
+            elif the_choice == '011':
+                convert.convert_to_csv(config_data['fence_file_waypoint'], config_data['fence_file_csv'])
+                convert.convert_to_csv(config_data['payload_file_waypoint'], config_data['payload_file_csv'])
+            elif the_choice == '010':
+                convert.convert_to_csv(config_data['fence_file_waypoint'], config_data['fence_file_csv'])
+            elif the_choice == '001':
+                convert.convert_to_csv(config_data['payload_file_waypoint'], config_data['payload_file_csv'])
+            elif the_choice == '000':
+                print("No files selected for conversion.")
+            break  # Exit the loop after processing a valid input
+        else:
+            print("Invalid option. Please enter a valid 3-digit code (e.g., '111', '101').")
 
 
 

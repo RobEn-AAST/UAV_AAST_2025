@@ -8,9 +8,22 @@
     "network_ips_csv":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/network_ips.csv",
     "home_lat":29.8146013,
     "home_long":30.8256198,
-    "take_off_alt":50,
+    "take_off_alt":40,
     "take_off_angle":15,
     "ip_range" :"192.168.1.1/24",
     "raspberry_pi_connection_string":"coco",
-    "telemetry sys": "xxxxxxxx"
+    "telemetry sys": "xxxxxxxx",
+    "bearing": 10,
+    "aircraftAltitude" : 80,
+    "aircraftVelocity" : 25,
+    "windSpeed" : 0,
+    "windBearing" : 190,
+    "servoNo": 9,
+    "PAYLOAD_OPEN_PWM_VALUE": 2150,
+    "PAYLOAD_CLOSE_PWM_VALUE": 850
 }
+
+
+
+
+

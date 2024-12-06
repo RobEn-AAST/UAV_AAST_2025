@@ -4,7 +4,6 @@ import numpy as np
 
 R = 6371000.0  # Earth radius in meters
 
-
 def Convert(lat, lon): #Convert LAT & LONG from degree to radian
     lat = float(lat) * math.pi / 180
     lon = float(lon) * math.pi / 180

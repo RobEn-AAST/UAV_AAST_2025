@@ -47,18 +47,6 @@ class Convertor:
 
 
 
-convert=Convertor()
-convert.convert_to_csv("C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/test/mission1.waypoints","C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/test/waypoints.csv")
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -4,6 +4,7 @@ from modules.mission2 import mission2
 from modules.mission3 import mission3
 from modules.uav import uav
 from modules.convertor20 import Convertor
+
 import json
 
 
@@ -92,8 +93,7 @@ if the_choice == "2":
 
 
 
-my_uav = uav(master, config_data["waypoints_file_csv"], config_data["fence_file_csv"], config_data["payload_file_csv"],
-             config_file)
+my_uav = uav(master,config_file)
 my_uav.upload_fence()
 print("choose the mission you want :")
 print("enter '1' for mission 1 'payload mission' ")

@@ -11,6 +11,7 @@
     "take_off_alt":40,
     "take_off_angle":15,
     "ip_range" :"192.168.1.1/24",
+    "sim_connection_string":"172.30.64.1:14550",
     "raspberry_pi_connection_string":"coco",
     "telemetry sys": "xxxxxxxx",
     "bearing": 10,
@@ -20,7 +21,13 @@
     "windBearing" : 190,
     "servoNo": 9,
     "PAYLOAD_OPEN_PWM_VALUE": 2150,
-    "PAYLOAD_CLOSE_PWM_VALUE": 850
+    "PAYLOAD_CLOSE_PWM_VALUE": 850,
+    "Sensor_width": 0.0235,
+    "sensor_height": 0.0156,
+    "survey_alt": 60,
+    "image_width": 6000,
+    "focal_length_max": 0.05,
+    "focal_length_min": 0.016
 }
 
 

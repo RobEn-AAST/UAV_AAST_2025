@@ -27,12 +27,12 @@ except KeyError as e:
 except Exception as e:
     print(f"An error occurred: {e}")
 
-connection_string1 = '172.30.64.1:14550'
+connection_string1 = config_data["sim_connection_string"]
 connection_string2 = config_data["raspberry_pi_connection_string"]
 
 print("choose the way of communication :")
 print("connection 1 is '127.0.0.1:14550' for local host")
-print("connection 2 is for raspberry pi")
+print("connection 2 is for network sharing")
 print("connection 3 for telemetry system")
 
 the_choice = input("Enter connection number:  ")
@@ -52,6 +52,7 @@ print("\nHeartbeat from system (system %u component %u)\n" % (master.target_syst
 print("do you have ready csv files or you want to convert .waypoints to csv\n")
 print("enter 1 if you have ready csv file")
 print("enter 2 if you want to me to convert .waypoint files\n")
+print("enter 3 for .pdf file")
 
 the_choice = input("Enter the option number:  ")
 

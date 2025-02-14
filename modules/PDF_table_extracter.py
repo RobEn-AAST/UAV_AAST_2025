@@ -5,6 +5,7 @@ from sys import platform
 import docx
 import csv
 import os
+import Data_loader
 
 # Function used to know if a number is a string.
 def is_float(string):
@@ -26,14 +27,17 @@ input_path = "Input\\"
 output_path = "Output\\"
 # Change file path if the code is running on Linux.
 if platform == "linux" or platform == "linux2":
-    filepath = (__file__).replace(os.path.basename(__file__), '')
+    filepath = (__file__).replace(os.path.basename(__file__),'')
     input_path = "Input/"
     output_path = "Output/"
 
 #! Rename "converted.pdf" to whatever the name of the provided PDF is!
 #pdf = filepath + "converted.pdf"
-pdf = filepath + input_path + "UAVC 2024- Way points_Deliverables.pdf"
-docx_file = filepath + output_path + "new_converted.docx"
+config_file = 'C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/data.json'
+data_loader = Data_loader(config_file)
+data_loader.load_config()
+pdf =
+docx_file =
 
 # Converting a PDF to a .docx file.
 cv = Converter(pdf)

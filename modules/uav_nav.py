@@ -209,3 +209,7 @@ class uav_nav:
         except Exception as e:
             print(f"An error occurred while reading the CSV file: {e}")
             return
+
+
+
+    def do_survey(self):

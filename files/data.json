@@ -12,6 +12,7 @@
     "take_off_angle":15,
     "ip_range" :"192.168.1.1/24",
     "sim_connection_string":"172.30.64.1:14550",
+    "telem_link": "com8",
     "raspberry_pi_connection_string":"coco",
     "telemetry sys": "xxxxxxxx",
     "bearing": 10,
@@ -27,7 +28,9 @@
     "survey_alt": 60,
     "image_width": 6000,
     "focal_length_max": 0.05,
-    "focal_length_min": 0.016
+    "focal_length_min": 0.016,
+    "pdf_mission":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/mission.pdf",
+    "docx_file":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/new_converted.docx"
 }
 
 

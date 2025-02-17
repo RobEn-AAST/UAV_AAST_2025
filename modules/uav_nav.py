@@ -2,8 +2,9 @@
 import csv
 
 from pymavlink import mavutil, mavwp
-from modules.utils import new_waypoint,calc_drop_loc,get_bearing
+from modules.utils import new_waypoint,calc_drop_loc,get_bearing,distance
 from modules.drop_location_calc import payload
+from modules.obs_avoid import project_point_on_great_circle
 
 class uav_nav:
     def __init__(self, config_data,vehicle):
@@ -213,3 +214,37 @@ class uav_nav:
 
 
     def do_survey(self):
+        pass
+
+    def do_obs_avoid(self):
+        obs_list = []
+        wp_list=[]
+
+        with open(self.config_data['waypoints_file_csv'], mode='r') as file:
+            csvfile=csv.reader(file)
+            for lines in csvfile:
+                wp_list.append(lines)
+        with open(self.config_data['obs_csv'], mode='r') as file:
+            csvfile=csv.reader(file)
+            for lines in csvfile:
+                obs_list.append(lines)
+        wp_list='\t'.split()
+        obs_list = '\t'.split()
+        print(obs_list)
+        print(wp_list)
+        for x in range(len(obs_list)-1):
+            for y in range(len(wp_list)-1):
+                if x or y == 0:
+                    pass
+                else:
+                    proj_lat,proj_lon = project_point_on_great_circle(wp_list[y][0],wp_list[y][1],wp_list[y+1][0],wp_list[y+1][1],obs_list[x+1][0],obs_list[x+1][1])
+                    dist = distance(proj_lat,proj_lon,obs_list[x+1][0],obs_list[x+1][1])
+                    if dist <= 7:
+                        line_obs_brng = get_bearing(proj_lat,proj_lon,obs_list[x+1][0],obs_list[x+1][1])
+                        obs_avoid_lat,obs_avoid_lon= new_waypoint(proj_lat,proj_lon,10,line_obs_brng+180)
+                        wp_list.insert(y+1,[obs_avoid_lat,obs_avoid_lon])
+
+
+
+        print(obs_list)
+        print(wp_list)

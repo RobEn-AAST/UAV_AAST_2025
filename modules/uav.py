@@ -18,7 +18,7 @@ class uav:
         self.vehicle = vehicle
         self.config_data = config_data
         self.nav = uav_nav(self.config_data, self.vehicle )
-        self.messages = uav_messages(self.vehicle, self.config_data)
+        self.messages = uav_messages (self.config_data,self.vehicle,)
         self.survey=Survey(self.config_data)
 
     def upload_fence(self):
@@ -57,5 +57,7 @@ class uav:
     def payload_seq_2(self):
         self.nav.payload_seq_2()
 
-    def do_servuy(self):
+    def do_survey(self):
         self.nav.do_survey()
+    def do_obs_avoid(self):
+        self.nav.do_obs_avoid()

@@ -3,7 +3,6 @@ from pymavlink import mavutil
 from modules.Data_loader import DataLoader
 from modules.mission1 import mission1
 from modules.mission2 import mission2
-from modules.mission3 import mission3
 from modules.convertor20 import Convertor
 
 import json
@@ -34,6 +33,7 @@ data_type = input("Enter the option number:  ")
 
 if data_type == "2":
     convert = Convertor()
+    convert.convert_to_csv(My_data.config_data['obs_waypoints'], My_data.config_data['obs_csv'])
     print("Enter 111 to convert waypoint,fence and payload files.")
     print(
         "For any file you don't want to convert, use '0'. For example, '101' will convert the waypoint and payload files while leaving the fence file unchanged.")
@@ -70,7 +70,6 @@ if data_type == "2":
 
 
 
-
 print("choose the mission you want :")
 print("enter '1' for mission 1 'payload mission' ")
 print("enter '2' for mission 2 'survey mission' ")
@@ -81,7 +80,6 @@ if the_mission_index == '1':
     mission1(connection_type,My_data.config_data)
 elif the_mission_index == '2':
     mission2(connection_type)
-elif the_mission_index == '3':
-    mission3(connection_type)
+
 
 

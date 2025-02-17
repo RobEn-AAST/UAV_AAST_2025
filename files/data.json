@@ -8,6 +8,7 @@
     "network_ips_csv":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/network_ips.csv",
     "obs_csv": "C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/obstacles.csv",
     "obs_waypoints": "C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/obstacles.waypoints",
+    "wp_plus_obs_csv": "C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/wp_plus_obs.csv",
     "home_lat":29.8146013,
     "home_long":30.8256198,
     "take_off_alt":40,

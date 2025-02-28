@@ -6,13 +6,18 @@
     "payload_file_waypoint": "C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/payload.waypoints",
     "payload_file_csv":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/payload.csv",
     "network_ips_csv":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/network_ips.csv",
+    "obs_csv": "C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/obstacles.csv",
+    "obs_waypoints": "C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/obstacles.waypoints",
+    "wp_plus_obs_csv": "C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/wp_plus_obs.csv",
     "home_lat":29.8146013,
     "home_long":30.8256198,
     "take_off_alt":40,
     "take_off_angle":15,
     "ip_range" :"192.168.1.1/24",
+    "sim_connection_string":"172.30.64.1:14550",
+    "telem_link": "com8",
     "raspberry_pi_connection_string":"coco",
-    "telemetry sys": "xxxxxxxx",
+    "telemetry sys": "com8",
     "bearing": 10,
     "aircraftAltitude" : 80,
     "aircraftVelocity" : 25,
@@ -20,7 +25,15 @@
     "windBearing" : 190,
     "servoNo": 9,
     "PAYLOAD_OPEN_PWM_VALUE": 2150,
-    "PAYLOAD_CLOSE_PWM_VALUE": 850
+    "PAYLOAD_CLOSE_PWM_VALUE": 850,
+    "Sensor_width": 0.0235,
+    "sensor_height": 0.0156,
+    "survey_alt": 60,
+    "image_width": 6000,
+    "focal_length_max": 0.05,
+    "focal_length_min": 0.016,
+    "pdf_mission":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/mission.pdf",
+    "docx_file":"C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/new_converted.docx"
 }
 
 

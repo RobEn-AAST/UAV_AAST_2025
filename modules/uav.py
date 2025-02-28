@@ -10,15 +10,16 @@ from modules.uav_nav import uav_nav
 from modules.uav_messages import uav_messages
 from modules.drop_location_calc import payload
 from modules.Data_loader import DataLoader
+from modules.survey import Survey
 
 
 class uav:
-    def __init__(self, vehicle, config_file) -> None:
+    def __init__(self, vehicle, config_data) -> None:
         self.vehicle = vehicle
-        self.data_loader = DataLoader(config_file)
-        self.config_data = self.data_loader.config_data
+        self.config_data = config_data
         self.nav = uav_nav(self.config_data, self.vehicle )
-        self.messages = uav_messages(self.vehicle, self.config_data)
+        self.messages = uav_messages (self.config_data,self.vehicle,)
+        self.survey=Survey(self.config_data)
 
     def upload_fence(self):
         self.messages.upload_fence()
@@ -56,3 +57,7 @@ class uav:
     def payload_seq_2(self):
         self.nav.payload_seq_2()
 
+    def do_survey(self):
+        self.nav.do_survey()
+    def do_obs_avoid(self):
+        self.nav.do_obs_avoid()

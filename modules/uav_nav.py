@@ -2,8 +2,9 @@
 import csv
 
 from pymavlink import mavutil, mavwp
-from modules.utils import new_waypoint,calc_drop_loc,get_bearing
+from modules.utils import new_waypoint,calc_drop_loc,get_bearing,distance
 from modules.drop_location_calc import payload
+from modules.obs_avoid import project_point_on_great_circle
 
 class uav_nav:
     def __init__(self, config_data,vehicle):
@@ -102,10 +103,10 @@ class uav_nav:
 
     def add_mission_waypoints(self):
 
-            waypoint_list = []
+            wp_list=[]
 
             try:
-                with open(self.config_data['waypoints_file_csv'], mode='r') as file:
+                with open(self.config_data['wp_plus_obs_csv'], mode='r') as file:
                     csv_reader = csv.reader(file)
 
                     # Convert CSV content to a list of lines
@@ -117,24 +118,24 @@ class uav_nav:
                             # Ensure the row is processed correctly
                             row = ' '.join(row).split()
                             lat, long, alt = float(row[0]), float(row[1]), float(row[2])
-                            waypoint_list.append([lat, long, alt])
+                            wp_list.append([lat, long, alt])
                         except ValueError as ve:
                             print(f"Skipping malformed row at line {i + 2}: {row} (Error: {ve})")
             except FileNotFoundError:
-                print(f"CSV file '{self.config_data['waypoints_file_csv']}' not found.")
+                print(f"CSV file '{self.config_data['wp_plus_obs_csv']}' not found.")
                 return
             except Exception as e:
                 print(f"An error occurred while reading the CSV file: {e}")
                 return
 
-            if not waypoint_list:
+            if not wp_list:
                 print("No valid waypoints found in the file.")
             else:
-                print(f"Successfully loaded {len(waypoint_list)} waypoints.")
+                print(f"Successfully loaded {len(wp_list)} waypoints.")
 
 
-            for i in range(len(waypoint_list)):
-                lat, long, alt = waypoint_list[i]
+            for i in range(len(wp_list)):
+                lat, long, alt = wp_list[i]
                 self.wp.add(mavutil.mavlink.MAVLink_mission_item_message(
                 self.vehicle.target_system,
                 self.vehicle.target_component,  # component id
@@ -209,3 +210,45 @@ class uav_nav:
         except Exception as e:
             print(f"An error occurred while reading the CSV file: {e}")
             return
+
+
+
+    def do_survey(self):
+        pass
+
+    def do_obs_avoid(self):
+        obs_list = []
+        wp_list=[]
+
+        with open(self.config_data['waypoints_file_csv'], mode='r') as file:
+            csvfile=csv.reader(file,delimiter='\t')
+            next(csvfile)
+            for lines in csvfile:
+                wp_list.append([float(lines[0]), float(lines[1]), float(lines[2])])
+        with open(self.config_data['obs_csv'], mode='r') as file:
+            csvfile=csv.reader(file,delimiter='\t')
+            next(csvfile)
+            for lines in csvfile:
+                obs_list.append([float(lines[0]), float(lines[1])])
+        for x in range(len(obs_list)):
+            for y in range(len(wp_list)-1):
+                    proj_lat,proj_lon = project_point_on_great_circle(wp_list[y][0],wp_list[y][1],wp_list[y+1][0],wp_list[y+1][1],obs_list[x][0],obs_list[x][1])
+                    dist = distance(proj_lat,proj_lon,obs_list[x][0],obs_list[x][1])
+                    if dist <= 7:
+                        print("\n obs_avoid point added\n")
+                        line_obs_brng = get_bearing(proj_lat,proj_lon,obs_list[x][0],obs_list[x][1])
+                        obs_avoid_lat,obs_avoid_lon= new_waypoint(proj_lat,proj_lon,20,line_obs_brng+180)
+                        wp_list.insert(y+1,[obs_avoid_lat,obs_avoid_lon,70])
+        wp_list=wp_list
+        # Empty the file first
+        with open(self.config_data['wp_plus_obs_csv'], 'w', newline='') as file:
+            pass  # This will clear the file
+
+        # Write updated waypoints back to CSV
+        with open(self.config_data['wp_plus_obs_csv'], 'w', newline='') as file:
+            writer = csv.writer(file, delimiter='\t')
+            writer.writerow(['lat', 'lon', 'alt'])  # Write header if necessary
+            for waypoint in wp_list:
+                writer.writerow(waypoint)  # Write each waypoint to the file
+
+        print("Updated Waypoints List written to file:", wp_list)

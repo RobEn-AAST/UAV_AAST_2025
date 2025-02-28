@@ -4,7 +4,7 @@ import csv
 
 
 class uav_messages:
-    def __init__(self, vehicle,config_data):
+    def __init__(self,config_data,vehicle):
         self.vehicle = vehicle
         self.config_data = config_data
 
@@ -29,7 +29,7 @@ class uav_messages:
             fence_list.append([lat, long])
             # open the fence_file
             try:
-                with open(self.config_data['waypoints_file_csv'], mode='r') as file:
+                with open(self.config_data['fence_file_csv'], mode='r') as file:
                     csv_reader = csv.reader(file)
                     # Skip the header
                     next(csv_reader)
@@ -50,7 +50,7 @@ class uav_messages:
                             first_fence_coord = [lat, long]
 
             except FileNotFoundError:
-                 print(f"CSV file '{self.config_data['waypoints_file_csv']}' not found.")
+                 print(f"CSV file '{self.config_data['fence_file_csv']}' not found.")
                  return
             except Exception as e:
                  print(f"An error occurred while reading the CSV file: {e}")

@@ -230,16 +230,14 @@ class uav_nav:
             next(csvfile)
             for lines in csvfile:
                 obs_list.append([float(lines[0]), float(lines[1])])
-        print(obs_list)
-        print(wp_list)
-        for x in range(len(obs_list)-1):
+        for x in range(len(obs_list)):
             for y in range(len(wp_list)-1):
                     proj_lat,proj_lon = project_point_on_great_circle(wp_list[y][0],wp_list[y][1],wp_list[y+1][0],wp_list[y+1][1],obs_list[x][0],obs_list[x][1])
                     dist = distance(proj_lat,proj_lon,obs_list[x][0],obs_list[x][1])
                     if dist <= 7:
                         print("\n obs_avoid point added\n")
                         line_obs_brng = get_bearing(proj_lat,proj_lon,obs_list[x][0],obs_list[x][1])
-                        obs_avoid_lat,obs_avoid_lon= new_waypoint(proj_lat,proj_lon,10,line_obs_brng+180)
+                        obs_avoid_lat,obs_avoid_lon= new_waypoint(proj_lat,proj_lon,20,line_obs_brng+180)
                         wp_list.insert(y+1,[obs_avoid_lat,obs_avoid_lon,70])
         wp_list=wp_list
         # Empty the file first

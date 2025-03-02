@@ -2,9 +2,9 @@
 import csv
 
 from pymavlink import mavutil, mavwp
-from modules.utils import new_waypoint,calc_drop_loc,get_bearing,distance
-from modules.drop_location_calc import payload
-from modules.obs_avoid import project_point_on_great_circle
+from modules.uav_utils import new_waypoint,calc_drop_loc,get_bearing,distance
+from modules.readers.drop_location_calc import payload
+from modules.utils.obs_avoid import project_point_on_great_circle
 
 class uav_nav:
     def __init__(self, config_data,vehicle):

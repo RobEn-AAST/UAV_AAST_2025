@@ -1,8 +1,8 @@
 import pymavlink.mavutil as utility
 import pymavlink.dialects.v20.all as dialect
 from pymavlink import mavutil
-from modules.uav import uav
-from modules.Data_loader import DataLoader
+from modules.uav_utils.uav import uav
+from modules.readers.Data_loader import DataLoader
 
 
 def mission1(connection_type,config_data):

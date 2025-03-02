@@ -1,7 +1,6 @@
 import math
 
 def lat_lon_to_cartesian(lat, lon, R=6371):
-
     lat_rad = math.radians(lat)
     lon_rad = math.radians(lon)
     x = R * math.cos(lat_rad) * math.cos(lon_rad)

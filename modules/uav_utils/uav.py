@@ -4,15 +4,15 @@ import pymavlink.dialects.v20.all as dialect
 import csv
 import json
 from pymavlink import mavutil, mavwp
-from modules.utils import new_waypoint, calc_drop_loc, get_bearing
+from modules.uav_utils import new_waypoint, calc_drop_loc, get_bearing
 
-from modules.uav_nav import uav_nav
-from modules.uav_messages import uav_messages
-from modules.drop_location_calc import payload
-from modules.Data_loader import DataLoader
+from modules.uav_utils.uav_nav import uav_nav
+from modules.uav_utils.uav_messages import uav_messages
+from modules.readers.drop_location_calc import payload
+from modules.readers.Data_loader import DataLoader
 from modules.survey import Survey
 
-
+# todo merge this with uav_nav
 class uav:
     def __init__(self, vehicle, config_data) -> None:
         self.vehicle = vehicle

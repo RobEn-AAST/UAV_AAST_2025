@@ -1,13 +1,8 @@
-from pymavlink import mavutil
-from flask import Flask, render_template, request, jsonify
-from modules.Data_loader import DataLoader
-from modules.mission1 import mission1
-from modules.mission2 import mission2
+from modules.readers.Data_loader import DataLoader
+from missions import mission1, mission2
 from modules.entries import uav_connect, config_choose, choose_mission
 
-app = Flask(__name__)
-
-config_file = 'C:/Users/Mostafa/PycharmProjects/fixed wing pymavlink/files/data.json'
+config_file = './files/data.json'
 Data_obj = DataLoader(config_file)
 uav_data= Data_obj.load_config()
 

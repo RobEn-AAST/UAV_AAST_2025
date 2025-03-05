@@ -1,6 +1,6 @@
 from modules.readers.Data_loader import DataLoader
 from missions import mission1, mission2
-from modules.entries import uav_connect, config_choose, choose_mission
+from modules.readers.entries import uav_connect, config_choose, choose_mission
 
 config_file = './files/data.json'
 Data_obj = DataLoader(config_file)

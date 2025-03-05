@@ -1,6 +1,4 @@
-from modules.convertor20 import Convertor
-
-
+from .convertor20 import Convertor
 
 def uav_connect():
     print("choose the way of communication :")

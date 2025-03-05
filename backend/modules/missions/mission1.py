@@ -1,8 +1,5 @@
-import pymavlink.mavutil as utility
-import pymavlink.dialects.v20.all as dialect
 from pymavlink import mavutil
-from modules.uav_utils.uav import uav
-from modules.readers.Data_loader import DataLoader
+from modules.uav_utils import Uav
 
 
 def mission1(connection_type,config_data):
@@ -16,7 +13,7 @@ def mission1(connection_type,config_data):
     master = mavutil.mavlink_connection(connection_string)
     master.wait_heartbeat()
 
-    my_uav= uav(master,config_data)
+    my_uav= Uav(master,config_data)
 
     my_uav.upload_fence()
     my_uav.clear_mission()
@@ -27,4 +24,3 @@ def mission1(connection_type,config_data):
     my_uav.add_drop_location_wp()
     my_uav.landingSequence()
     my_uav.upload_missions()
-

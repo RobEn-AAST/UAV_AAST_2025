@@ -1,1 +1,1 @@
-from .entries import uav_connect, config_choose, choose_mission
+from .entries import config_choose, choose_mission

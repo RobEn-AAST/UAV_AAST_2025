@@ -1,15 +1,5 @@
 from .convertor20 import Convertor
 
-def uav_connect():
-    print("choose the way of communication :")
-    print("connection 1 is '127.0.0.1:14550' for local host")
-    print("connection 2 is for network sharing")
-    print("connection 3 for telemetry system")
-    connection_type = input("Enter connection number:  ")
-
-    return connection_type
-
-
 def config_choose(My_data):
     print("do you have ready csv files or you want to convert .waypoints to csv\n")
     print("enter 1 if you have ready csv file")
@@ -54,17 +44,3 @@ def config_choose(My_data):
                 break  # Exit the loop after processing a valid input
             else:
                 print("Invalid option. Please enter a valid 3-digit code (e.g., '111', '101').")
-
-
-
-
-
-def choose_mission():
-
-    print("choose the mission you want :")
-    print("enter '1' for mission 1 'payload mission' ")
-    print("enter '2' for mission 2 'survey mission' ")
-    print("enter '3' for mission 3 'endurance' ")
-    the_mission_index = input("Enter mission number.....  \n")
-
-    return the_mission_index

@@ -1,19 +1,14 @@
 from modules.readers.Data_loader import DataLoader
 from modules.missions import mission1, mission2
-from modules.readers import uav_connect, config_choose, choose_mission
+from modules.readers import config_choose
 
 config_file = './files/data.json'
 Data_obj = DataLoader(config_file)
 uav_data = Data_obj.load_config()
 
-connection_type = uav_connect()
-
 config_choose(uav_data)
 
-the_mission_index = choose_mission()
+# with uav initialize connection
 
-
-if the_mission_index == '1':
-    mission1(connection_type, uav_data)
-elif the_mission_index == '2':
-    mission2(connection_type)
+# now execute mission
+mission1(connection_type, uav_data)

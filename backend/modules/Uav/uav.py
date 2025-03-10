@@ -1,15 +1,15 @@
 import json
 from pymavlink import mavutil, mavwp
-from modules.utils import new_waypoint, calc_drop_loc, get_bearing, distance
-from modules.utils.obs_avoid import project_point_on_great_circle
-from typing import Callable
+from modules.utils import new_waypoint
 from modules.Uav.uav_messages import uav_messages
 
 
 class Uav:
     def __init__(self, connection_string: str, config_data_path: str) -> None:
         master = mavutil.mavlink_connection(connection_string)
-        master.wait_heartbeat(timeout=10)
+        if not master.wait_heartbeat(timeout=10):
+            raise ConnectionError("Failed to establish connection with UAV - no heartbeat received")
+        print('Connection established with UAV')
 
         with open(config_data_path, "r") as f:
             config_data = json.load(f)
@@ -105,7 +105,7 @@ class Uav:
                 mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
                 0,
                 1,
-                self.config_data["servoNo"],
+                self.config_data["payload_servo_no"],
                 self.config_data["PAYLOAD_CLOSE_PWM_VALUE"],
                 0,
                 0,
@@ -162,8 +162,8 @@ class Uav:
 
     def add_servo_dropping_wps(self):
         self.servo_wp(is_open=True)
-        self.add_delay_wp(self.config_data["drop_delay"])
-        self.close_servo_wp(is_open=False)
+        self.add_delay_wp(self.config_data["drop_close_delay"])
+        self.servo_wp(is_open=False)
 
     # extra logic idk
 
@@ -223,8 +223,8 @@ class Uav:
             )
         )
 
-    def before_mission_logic(self):
-        self.messages.upload_fence()
+    def before_mission_logic(self, fence_list: list[list[float]]):
+        self.messages.upload_fence(fence_list)
         self.messages.clear_mission()
         self.add_home_wp()
         self.takeoff_sequence()

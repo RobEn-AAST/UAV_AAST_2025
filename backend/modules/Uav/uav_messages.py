@@ -7,46 +7,17 @@ class uav_messages:
         self.vehicle = vehicle
         self.config_data = config_data
 
-    def upload_fence(self):
-        fence_list = []
-
+    def upload_fence(self, fence_list: list[list[float]]):
+        """expected format: [[lat, long]]"""
         lat, long = self.config_data['home_lat'], self.config_data['home_long']
-        fence_list.append([lat, long])
-
-        # open the fence_file
-        try:
-            with open(self.config_data['fence_file_csv'], mode='r') as file:
-                csv_reader = csv.reader(file)
-                next(csv_reader)  # skip header
-                for i, row in enumerate(csv_reader):
-                    row = ' '.join(row).split()
-                    if len(row) == 3:
-                        try:
-                            lat, long, alt = map(float, row)
-                            print(f'Latitude: {lat}, Longitude: {long}, Altitude: {alt}')
-                        except ValueError as e:
-                            print(f'Error converting values: {row}. Error: {e}')
-                    else:
-                        print(f'Invalid row format: {row}')
-                    fence_list.append([lat, long])
-                    # Save the first coordinate to add it again at the end
-                    if i == 0:
-                        first_fence_coord = [lat, long]
-
-        except FileNotFoundError:
-            print(f"CSV file '{self.config_data['fence_file_csv']}' not found.")
-            return
-        except Exception as e:
-            print(f'An error occurred while reading the CSV file: {e}')
-            return
-        if first_fence_coord:
-            fence_list.append(first_fence_coord)
+        fence_list.insert([lat, long], 0)
 
         FENCE_TOTAL = 'FENCE_TOTAL'.encode(encoding='utf-8')
         FENCE_ACTION = 'FENCE_ACTION'.encode(encoding='utf8')
         FENCE_ENABLE = 'FENCE_ENABLE'.encode(encoding='utf-8')
         PARAM_INDEX = -1
-        # function to upload the fence
+        
+        # todo sned whether fence is enable based on fence list size, and set fence total as well parameters
 
         self.vehicle.wait_heartbeat()
 

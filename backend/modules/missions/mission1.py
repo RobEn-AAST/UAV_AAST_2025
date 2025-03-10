@@ -1,26 +1,22 @@
 from pymavlink import mavutil
-from modules.uav_utils import Uav
+from modules.utils import calc_drop_loc, get_bearing, new_waypoint
+from modules.Uav import Uav
 
 
-def mission1(connection_type,config_data):
-    if connection_type == '1':
-        connection_string = config_data['sim_connection_string']
-    elif connection_type == '2':
-        connection_string = config_data['raspberry_pi_connection_string']
-    elif connection_type == '3':
-        connection_string = config_data['telem_link']
+def mission1(wp_list: list[list[float]], payload_pos: list[float], uav: Uav) -> bool:
+    uav.add_mission_waypoints(wp_list)
 
-    master = mavutil.mavlink_connection(connection_string)
-    master.wait_heartbeat()
+    x = calc_drop_loc(
+        uav.config_data["aircraftAltitude"],
+        uav.config_data["aircraftVelocity"],
+        uav.config_data["windSpeed"],
+        uav.config_data["windBearing"],
+    )
+    # todo calculate the approaching payload equation and add it to the wp_list
+    uav.add_mission_waypoints(wp_list)
 
-    my_uav= Uav(master,config_data)
+    uav.add_servo_dropping_wps()
 
-    my_uav.upload_fence()
-    my_uav.clear_mission()
-    my_uav.add_home_wp()
-    my_uav.takeoff_sequence()
-    my_uav.do_obs_avoid()
-    my_uav.add_mission_waypoints()
-    my_uav.add_drop_location_wp()
-    my_uav.landingSequence()
-    my_uav.upload_missions()
+    uav.add_mission_waypoints(wp_list)
+
+    uav.add_drop_location_wps()

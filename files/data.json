@@ -37,5 +37,6 @@
     "start_land_dist": 100,
     "loiter_alt": 20,
     "loiter_rad": 50,
-    "drop_close_delay": 2
+    "drop_close_delay": 2,
+    "obs_safe_dist": 5
 }

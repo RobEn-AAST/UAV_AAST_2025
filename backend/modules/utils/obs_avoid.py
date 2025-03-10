@@ -1,49 +1,155 @@
-import math
-
-def lat_lon_to_cartesian(lat, lon, R=6371):
-    lat_rad = math.radians(lat)
-    lon_rad = math.radians(lon)
-    x = R * math.cos(lat_rad) * math.cos(lon_rad)
-    y = R * math.cos(lat_rad) * math.sin(lon_rad)
-    z = R * math.sin(lat_rad)
-    return x, y, z
+# TODO TEST
+from .math import get_dist_2_points, get_bearing_2_points, new_waypoint, haversine
+import numpy as np
 
 
-def cartesian_to_lat_lon(x, y, z):
+def is_obstacle_between(pointA, pointB, obstacle, radius):
+    # Extract coordinates
+    pointA_lat, pointA_long = pointA
+    pointB_lat, pointB_long = pointB
+    obstacle_lat, obstacle_long = obstacle
 
-    R = math.sqrt(x ** 2 + y ** 2 + z ** 2)
-    lat = math.degrees(math.asin(z / R))
-    lon = math.degrees(math.atan2(y, x))
-    return lat, lon
+    # Convert coordinates to Cartesian (X, Y) for easier calculations
+    def latlon_to_xy(lat, lon):
+        return (lat, lon)
+
+    Ax, Ay = latlon_to_xy(pointA_lat, pointA_long)
+    Bx, By = latlon_to_xy(pointB_lat, pointB_long)
+    Ox, Oy = latlon_to_xy(obstacle_lat, obstacle_long)
+
+    # Vector AB and AO
+    AB = np.array([Bx - Ax, By - Ay])
+    AO = np.array([Ox - Ax, Oy - Ay])
+
+    # Project AO onto AB to find the closest point on the line segment
+    AB_squared = np.dot(AB, AB)
+    if AB_squared == 0:
+        return False  # A and B are the same point
+
+    AO_dot_AB = np.dot(AO, AB)
+    t = AO_dot_AB / AB_squared
+    t = max(0, min(1, t))  # Clamp t to the range [0, 1]
+
+    # Find the projection point
+    projection = np.array([Ax, Ay]) + t * AB
+
+    # Distance from the obstacle to the projection point
+    distance_to_obstacle = haversine(
+        projection[0], projection[1], obstacle_lat, obstacle_long
+    )
+
+    return distance_to_obstacle <= radius
 
 
-def project_point_on_great_circle(lat1, lon1, lat2, lon2, lat3, lon3):
-
-    # Convert all points to Cartesian coordinates
-    x1, y1, z1 = lat_lon_to_cartesian(lat1, lon1)
-    x2, y2, z2 = lat_lon_to_cartesian(lat2, lon2)
-    x3, y3, z3 = lat_lon_to_cartesian(lat3, lon3)
-
-    # Compute the normal vector of the plane of the great circle
-    N_x = y1 * z2 - z1 * y2
-    N_y = z1 * x2 - x1 * z2
-    N_z = x1 * y2 - y1 * x2
-
-    # Normalize the normal vector
-    N_mag = math.sqrt(N_x ** 2 + N_y ** 2 + N_z ** 2)
-    N_x /= N_mag
-    N_y /= N_mag
-    N_z /= N_mag
-
-    # Project the external point onto the plane
-    dot_product = x3 * N_x + y3 * N_y + z3 * N_z
-    x_proj = x3 - dot_product * N_x
-    y_proj = y3 - dot_product * N_y
-    z_proj = z3 - dot_product * N_z
-
-    # Convert the projected Cartesian coordinates back to lat/lon
-    lat_proj, lon_proj = cartesian_to_lat_lon(x_proj, y_proj, z_proj)
-
-    return lat_proj, lon_proj
+safetyMargin = 0
+pointsAroundObs = 1
 
 
+def apply_obs_avoidance(
+    wp_list: list[list[float]], obs_list: list[list[float]], safe_dist: float
+) -> list[list[float]]:
+    """_summary_
+
+    Args:
+        wp_list (list[list[float]]): shape of [lat, long, alt]
+        obs_list (list[list[float]]): shape of [lat, long, radius]
+
+    Returns:
+        list[list[float]]: shape of [lat, long, alt] after avoidance
+    """
+    newWaypoints = []
+
+    def add_avoid_waypoint(
+        latA,
+        longA,
+        altA,
+        latB,
+        longB,
+        altB,
+        obsLat,
+        obsLong,
+        obsRad,
+        obsBearing,
+        execludeObsI,
+    ):
+        dObs = obsRad + safe_dist
+
+        latNew, longNew = new_waypoint(obsLat, obsLong, dObs, obsBearing)
+        # check_obstacles(latA, longA, altA, latNew, longNew, altA, execludeObsI)
+        newWaypoints.append([latNew, longNew, altA])
+        # check_obstacles(latNew, longNew, altA, latB, longB, altB, execludeObsI)
+
+    def check_obstacles(latA, longA, altA, latB, longB, altB, execludeObsI):
+        for i, obs in enumerate(obs_list):
+            if execludeObsI is not None and i == execludeObsI:
+                continue
+
+            ObsLat, ObsLong, ObsRad = obs
+
+            is_obstacle_between(
+                [latA, longA], [latB, longB], [ObsLat, ObsLong], ObsRad + safe_dist
+            )
+            distance_a_b = get_dist_2_points(latA, longA, latB, longB)
+            distance_a_obs = get_dist_2_points(latA, longA, ObsLat, ObsLong)
+            bearing_a_obs = get_bearing_2_points(latA, longA, ObsLat, ObsLong)
+            bearing_a_b = get_bearing_2_points(latA, longA, latB, longB)
+            bearingObs = bearing_a_b - 90
+
+            if bearing_a_b > bearing_a_obs:
+                brng = bearing_a_b - bearing_a_obs
+            else:
+                brng = bearing_a_obs - bearing_a_b
+
+            obsAffects = is_obstacle_between(
+                [latA, longA], [latB, longB], [ObsLat, ObsLong], ObsRad + safe_dist
+            )
+            if obsAffects:
+                add_avoid_waypoint(
+                    latA,
+                    longA,
+                    altA,
+                    latB,
+                    longB,
+                    altB,
+                    ObsLat,
+                    ObsLong,
+                    ObsRad,
+                    bearingObs,
+                    i,
+                )
+
+    if len(obs_list) == 0:
+        for i, wp in enumerate(wp_list):
+            newWaypoints.append([wp[0], wp[1]])
+
+    else:
+        # combine close obstacles
+        i = 0
+        while i < len(obs_list) - 1:
+            obs = obs_list[i]
+            nextObs = obs_list[i + 1]
+            distance = get_dist_2_points(obs[0], obs[1], nextObs[0], nextObs[1])
+            bearing = get_bearing_2_points(obs[0], obs[1], nextObs[0], nextObs[1])
+            if abs(distance) <= 30:
+                ObsLat_new, ObsLong_new = new_waypoint(
+                    obs[0], obs[1], distance / 2, bearing
+                )
+                # ! TEST THE NEW RADIUS IMPLEMENTATION INSTEAD OF JUST ADDING
+                obsRadius = obs[2] + nextObs[2]  # math.sqrt(obs[2]**2 + nextObs[2]**2)
+                obs_list[i] = [ObsLat_new, ObsLong_new, obsRadius]
+                del obs_list[i + 1]
+            else:
+                i += 1
+
+        firstWp = wp_list[0]
+        newWaypoints.append([firstWp[0], firstWp[1], wp[2]])
+        for i, wp in enumerate(wp_list[:-1]):
+            nextWp = wp_list[i + 1]
+            latA, longA, altA = wp[0], wp[1], wp[2]
+            latB, longB, altB = nextWp[0], nextWp[1], wp[2]
+
+            check_obstacles(latA, longA, altA, latB, longB, altB, None)
+
+            newWaypoints.append([latB, longB, altB])
+
+    return newWaypoints

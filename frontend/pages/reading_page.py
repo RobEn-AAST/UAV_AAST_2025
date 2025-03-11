@@ -1,76 +1,57 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog, 
-                            QLabel, QLineEdit, QGridLayout, QGroupBox)
+                            QLabel, QLineEdit, QGridLayout, QGroupBox,
+                            QTableWidget, QHBoxLayout)
+from PyQt6.QtCore import Qt
 from utils.file_handlers import FileHandler
 
+# todo read csv to csv option as well, along with the pdf optioni to table to csv, ensure to save outputs
 class ReadingPage(QWidget):
     def __init__(self):
         super().__init__()
         self.file_handler = FileHandler()
-        # Initialize dictionaries to store paths for each reader
-        self.input_paths = {}
-        self.output_paths = {}
         self.init_ui()
 
     def init_ui(self):
         layout = QVBoxLayout(self)
         
-        # PDF Section
-        pdf_group = self.create_input_group("PDF Reader", self.read_pdf)
-        layout.addWidget(pdf_group)
+        header_label = QLabel("Displaying CSV tables containing mission waypoints.")
+        upload_button = QPushButton("Upload PDF")
+        file_label = QLabel("Selected File:")
+        selected_file_label = QLabel("")
         
-        # CSV Section
-        csv_group = self.create_input_group("CSV Reader", self.read_csv)
-        layout.addWidget(csv_group)
+        header_layout = QHBoxLayout()
+        header_layout.addWidget(upload_button)
+        header_layout.addWidget(file_label)
+        header_layout.addWidget(selected_file_label)
+        header_layout.addStretch()
         
-        layout.addStretch()
+        tables_layout = QHBoxLayout()
+        table_names = ["Payload", "Table_0", "Table_1", "Table_2"]
+        self.tables = []
+        
+        labels_layout = QHBoxLayout()
+        for name in table_names:
+            label = QLabel(name)
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            labels_layout.addWidget(label)
+        
+        for _ in range(4):
+            table = QTableWidget(11, 3)
+            table.horizontalHeader().setVisible(False)
+            table.horizontalHeader().setDefaultSectionSize(85)
+            table.verticalHeader().setVisible(False)
+            self.tables.append(table)
+            tables_layout.addWidget(table)
+        
+        layout.addWidget(header_label)
+        layout.addLayout(header_layout)
+        layout.addLayout(labels_layout)
+        layout.addLayout(tables_layout)
+        
+        upload_button.clicked.connect(lambda: self.browse_file(selected_file_label))
 
-    def create_input_group(self, title, handler_func):
-        group = QGroupBox(title)
-        grid = QGridLayout()
-        
-        # Create unique input and output fields for this group
-        self.input_paths[title] = QLineEdit()
-        self.output_paths[title] = QLineEdit()
-        
-        # Input path
-        input_label = QLabel("Input Path:")
-        browse_input = QPushButton("Browse")
-        browse_input.clicked.connect(
-            lambda: self.browse_file(self.input_paths[title], "Select Input File"))
-        
-        # Output path
-        output_label = QLabel("Output Path:")
-        browse_output = QPushButton("Browse")
-        browse_output.clicked.connect(
-            lambda: self.browse_file(self.output_paths[title], "Select Output Location"))
-        
-        # Read button
-        read_button = QPushButton(f"Read {title}")
-        read_button.clicked.connect(lambda: handler_func(title))
-        
-        # Layout
-        grid.addWidget(input_label, 0, 0)
-        grid.addWidget(self.input_paths[title], 0, 1)
-        grid.addWidget(browse_input, 0, 2)
-        grid.addWidget(output_label, 1, 0)
-        grid.addWidget(self.output_paths[title], 1, 1)
-        grid.addWidget(browse_output, 1, 2)
-        grid.addWidget(read_button, 2, 1)
-        
-        group.setLayout(grid)
-        return group
-
-    def browse_file(self, line_edit, title):
-        filename, _ = QFileDialog.getOpenFileName(self, title, "", "All Files (*)")
+    def browse_file(self, label):
+        filename, _ = QFileDialog.getOpenFileName(self, "Select PDF File", "", "PDF Files (*.pdf)")
         if filename:
-            line_edit.setText(filename)
-
-    def read_pdf(self, title):
-        input_path = self.input_paths[title].text()
-        output_path = self.output_paths[title].text()
-        self.file_handler.handle_pdf(input_path, output_path)
-
-    def read_csv(self, title):
-        input_path = self.input_paths[title].text()
-        output_path = self.output_paths[title].text()
-        self.file_handler.handle_csv(input_path, output_path)
+            label.setText(filename)
+            # todo continue rest of pdf reading logic

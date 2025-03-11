@@ -1,0 +1,2 @@
+here we add the final csv files with a uniform way of reading, this will be the only file the backend will have access to from the mission
+so ensure from frontend after creating the csv you add the mission files here (wayypoints list, fence, obstacles)

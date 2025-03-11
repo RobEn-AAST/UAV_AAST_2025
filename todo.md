@@ -24,3 +24,7 @@ some issues to point:
     - silent errors, for say reading a file when you call the function and it fails yes it prints that it failed but the caller doenst' know that instead he continues to run as if it worked fine, even worse it itself will cause an error as the returned type was an empty dictionary intead of dictionary with data, the errors must be handeled in teh caller too
     classes names should follow pascal case
     Convert and Reconvert, what type of naming is this ;-;
+
+    AUTO CONTINUE IS FALSE?!
+
+    desired yaw to zero??

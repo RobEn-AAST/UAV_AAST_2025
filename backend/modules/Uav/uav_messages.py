@@ -3,8 +3,8 @@ import csv
 
 
 class uav_messages:
-    def __init__(self, config_data, vehicle):
-        self.vehicle = vehicle
+    def __init__(self, master: dialect.MAVLink, config_data: dict):
+        self.master = master
         self.config_data = config_data
 
     def upload_fence(self, fence_list: list[list[float]]):
@@ -23,29 +23,29 @@ class uav_messages:
 
         # todo sned whether fence is enable based on fence list size, and set fence total as well parameters
 
-        self.vehicle.wait_heartbeat()
+        self.master.wait_heartbeat()
 
         print(
             "Connected to system:",
-            self.vehicle.target_system,
+            self.master.target_system,
             ", component:",
-            self.vehicle.target_component,
+            self.master.target_component,
         )
 
         # making a request to recv message
 
         message = dialect.MAVLink_param_request_read_message(
-            target_system=self.vehicle.target_system,
-            target_component=self.vehicle.target_component,
+            target_system=self.master.target_system,
+            target_component=self.master.target_component,
             param_id=FENCE_ACTION,
             param_index=PARAM_INDEX,
         )
 
-        self.vehicle.mav.send(message)
+        self.master.mav.send(message)
 
         while True:
             # wait for PARAM_VALUE message
-            message = self.vehicle.recv_match(
+            message = self.master.recv_match(
                 type=dialect.MAVLink_param_value_message.msgname, blocking=True
             )
 
@@ -67,8 +67,8 @@ class uav_messages:
 
         while True:
             message = dialect.MAVLink_param_set_message(
-                target_system=self.vehicle.target_system,
-                target_component=self.vehicle.target_component,
+                target_system=self.master.target_system,
+                target_component=self.master.target_component,
                 param_id=FENCE_ACTION,
                 param_value=dialect.FENCE_ACTION_NONE,
                 param_type=dialect.MAV_PARAM_TYPE_REAL32,
@@ -76,11 +76,11 @@ class uav_messages:
 
             # now we are setting the parameter
 
-            self.vehicle.mav.send(message)
+            self.master.mav.send(message)
 
             # now we are going to check that the parameter have been set successfully
 
-            message = self.vehicle.recv_match(
+            message = self.master.recv_match(
                 type=dialect.MAVLink_param_value_message.msgname, blocking=True
             )
 
@@ -100,16 +100,16 @@ class uav_messages:
 
         while True:
             message = dialect.MAVLink_param_set_message(
-                target_system=self.vehicle.target_system,
-                target_component=self.vehicle.target_component,
+                target_system=self.master.target_system,
+                target_component=self.master.target_component,
                 param_id=FENCE_TOTAL,
                 param_value=0,
                 param_type=dialect.MAV_PARAM_TYPE_REAL32,
             )
 
-            self.vehicle.mav.send(message)
+            self.master.mav.send(message)
 
-            message = self.vehicle.recv_match(
+            message = self.master.recv_match(
                 type=dialect.MAVLink_param_value_message.msgname, blocking=True
             )
 
@@ -130,18 +130,18 @@ class uav_messages:
         while True:
             # create parameter set message
             message = dialect.MAVLink_param_set_message(
-                target_system=self.vehicle.target_system,
-                target_component=self.vehicle.target_component,
+                target_system=self.master.target_system,
+                target_component=self.master.target_component,
                 param_id=FENCE_TOTAL,
                 param_value=len(fence_list),
                 param_type=dialect.MAV_PARAM_TYPE_REAL32,
             )
 
             # send parameter set message to the vehicle
-            self.vehicle.mav.send(message)
+            self.master.mav.send(message)
 
             # wait for PARAM_VALUE message
-            message = self.vehicle.recv_match(
+            message = self.master.recv_match(
                 type=dialect.MAVLink_param_value_message.msgname, blocking=True
             )
 
@@ -165,8 +165,8 @@ class uav_messages:
 
         while idx < len(fence_list):
             message = dialect.MAVLink_fence_point_message(
-                target_system=self.vehicle.target_system,
-                target_component=self.vehicle.target_component,
+                target_system=self.master.target_system,
+                target_component=self.master.target_component,
                 idx=idx,
                 count=len(fence_list),
                 lat=fence_list[idx][0],
@@ -174,20 +174,20 @@ class uav_messages:
             )
 
             # send this message to vehicle
-            self.vehicle.mav.send(message)
+            self.master.mav.send(message)
 
             # create FENCE_FETCH_POINT message
             message = dialect.MAVLink_fence_fetch_point_message(
-                target_system=self.vehicle.target_system,
-                target_component=self.vehicle.target_component,
+                target_system=self.master.target_system,
+                target_component=self.master.target_component,
                 idx=idx,
             )
 
             # send this message to vehicle
-            self.vehicle.mav.send(message)
+            self.master.mav.send(message)
 
             # wait until receive FENCE_POINT message
-            message = self.vehicle.recv_match(
+            message = self.master.recv_match(
                 type=dialect.MAVLink_fence_point_message.msgname, blocking=True
             )
 
@@ -210,18 +210,18 @@ class uav_messages:
         while True:
             # create parameter set message
             message = dialect.MAVLink_param_set_message(
-                target_system=self.vehicle.target_system,
-                target_component=self.vehicle.target_component,
+                target_system=self.master.target_system,
+                target_component=self.master.target_component,
                 param_id=FENCE_ACTION,
                 param_value=fence_action_original,
                 param_type=dialect.MAV_PARAM_TYPE_REAL32,
             )
 
             # send parameter set message to the vehicle
-            self.vehicle.mav.send(message)
+            self.master.mav.send(message)
 
             # wait for PARAM_VALUE message
-            message = self.vehicle.recv_match(
+            message = self.master.recv_match(
                 type=dialect.MAVLink_param_value_message.msgname, blocking=True
             )
 
@@ -249,8 +249,8 @@ class uav_messages:
                         )
                     )
         message = dialect.MAVLink_command_long_message(
-            target_system=self.vehicle.target_system,
-            target_component=self.vehicle.target_component,
+            target_system=self.master.target_system,
+            target_component=self.master.target_component,
             command=dialect.MAV_CMD_DO_FENCE_ENABLE,
             confirmation=0,
             param1=1,
@@ -263,18 +263,18 @@ class uav_messages:
         )
 
         # send the message to the vehicle
-        self.vehicle.mav.send(message)
+        self.master.mav.send(message)
 
     def clear_mission(self):
         message = dialect.MAVLink_mission_request_list_message(
-            target_system=self.vehicle.target_system,
-            target_component=self.vehicle.target_component,
+            target_system=self.master.target_system,
+            target_component=self.master.target_component,
             mission_type=dialect.MAV_MISSION_TYPE_MISSION,
         )
 
-        self.vehicle.mav.send(message)
+        self.master.mav.send(message)
 
-        message = self.vehicle.recv_match(
+        message = self.master.recv_match(
             type=dialect.MAVLink_mission_count_message.msgname, blocking=True
         )
 
@@ -285,26 +285,26 @@ class uav_messages:
 
         # create mission clear all message
         message = dialect.MAVLink_mission_clear_all_message(
-            target_system=self.vehicle.target_system,
-            target_component=self.vehicle.target_component,
+            target_system=self.master.target_system,
+            target_component=self.master.target_component,
             mission_type=dialect.MAV_MISSION_TYPE_MISSION,
         )
 
         # send mission clear all command to the master
-        self.vehicle.mav.send(message)
+        self.master.mav.send(message)
 
         # create mission request list message
         message = dialect.MAVLink_mission_request_list_message(
-            target_system=self.vehicle.target_system,
-            target_component=self.vehicle.target_component,
+            target_system=self.master.target_system,
+            target_component=self.master.target_component,
             mission_type=dialect.MAV_MISSION_TYPE_MISSION,
         )
 
         # send the message to the master
-        self.vehicle.mav.send(message)
+        self.master.mav.send(message)
 
         # wait mission count message
-        message = self.vehicle.recv_match(
+        message = self.master.recv_match(
             type=dialect.MAVLink_mission_count_message.msgname, blocking=True
         )
 

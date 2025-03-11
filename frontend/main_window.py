@@ -1,5 +1,11 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QTabWidget, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import (
+    QApplication,
+    QWidget,
+    QTabWidget,
+    QVBoxLayout,
+    QLabel
+)
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -43,7 +49,9 @@ class MainWindow(QWidget):
         self.camera_tab.setLayout(camera_layout)
 
 
-app = QApplication(sys.argv)
-window = MainWindow()
-window.show()
-sys.exit(app.exec_())
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
+w

@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
-                            QStackedWidget, QTabWidget)
+                            QStackedWidget, QTabWidget, QLabel)
 from PyQt6.QtGui import QFont
 from pages.home_page import HomePage
 from pages.reading_page import ReadingPage
@@ -20,20 +20,41 @@ class MainWindow(QMainWindow):
         self.tab_widget = QTabWidget()
         self.layout.addWidget(self.tab_widget)
         
-        # Add pages
+        # Create tab pages
         self.home_page = HomePage()
         self.reading_page = ReadingPage()
+        self.missions_tab = QWidget()
+        self.parameters_tab = QWidget()
+        self.camera_tab = QWidget()
         
         # Add tabs
         self.tab_widget.addTab(self.home_page, "Home")
         self.tab_widget.addTab(self.reading_page, "Reading")
+        self.tab_widget.addTab(self.missions_tab, "Missions")
+        self.tab_widget.addTab(self.parameters_tab, "Parameters")
+        self.tab_widget.addTab(self.camera_tab, "Camera")
+        
+        self.setup_tabs()
+
+    def setup_tabs(self):
+        # Missions tab
+        missions_layout = QVBoxLayout()
+        missions_layout.addWidget(QLabel("Choose a mission"))
+        self.missions_tab.setLayout(missions_layout)
+
+        # Parameters tab
+        parameters_layout = QVBoxLayout()
+        parameters_layout.addWidget(QLabel("for parameter uploading"))
+        self.parameters_tab.setLayout(parameters_layout)
+
+        # Camera tab
+        camera_layout = QVBoxLayout()
+        camera_layout.addWidget(QLabel("Camera details"))
+        self.camera_tab.setLayout(camera_layout)
 
 def main():
     app = QApplication(sys.argv)
-    
-    # Set application-wide font
     app.setFont(QFont('Arial', 10))
-    
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

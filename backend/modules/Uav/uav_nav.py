@@ -43,7 +43,6 @@ class UavNav:
         return self._create_waypoint(
             command=mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
             param1=self.config_data["take_off_angle"],
-            param4=0,  # System default yaw
             lat=home_lat,
             lon=home_lon,
             alt=self.config_data["take_off_alt"],
@@ -63,7 +62,6 @@ class UavNav:
         """Create landing waypoint at specified coordinates."""
         return self._create_waypoint(
             command=mavutil.mavlink.MAV_CMD_NAV_LAND,
-            param4=0,  # System default yaw
             lat=lat,
             lon=lon,
             alt=0,
@@ -89,7 +87,6 @@ class UavNav:
         """Create navigation waypoint."""
         return self._create_waypoint(
             command=mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
-            param4=0,  # System default yaw
             lat=lat,
             lon=lon,
             alt=alt,
@@ -100,7 +97,6 @@ class UavNav:
         return self._create_waypoint(
             command=mavutil.mavlink.MAV_CMD_DO_SET_HOME,
             param1=0,  # Use specified coordinates instead of current
-            param4=0,  # System default yaw
             lat=lat,
             lon=lon,
         )

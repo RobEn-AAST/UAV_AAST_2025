@@ -1,6 +1,7 @@
 IMPORTANT FIX DUBIN PATH DON'T USE A FIXED APPROACH BEARING
 IMPORTANT STOP USING PLANE .JSON AS IT'S VWEERY BRITTLE AND SUBTLE TO MISTAKES
 
+## Bring back those but in the frontend
 frontend Enter connection string with a drop down for available options
 def uav_connect():
     print("choose the way of communication :")
@@ -10,10 +11,16 @@ def uav_connect():
     connection_type = input("Enter connection number:  ")
 
 
-adjust initial bearing during takeoff to get it automatically
-test obstacle avoidance module more and maybe find something better
-have the payload path finder more separated
-have a separated class for Coord
+adjust initial bearing during takeoff to get it automatically maybe..
+
+## important
+!fix dubins path calculation calls
+!obstacle avoidance, test obstacle avoidance module more and maybe find something better
+!align the mission logic with what the competition actually wants
+have a class point that includes (lat, long, alt, brng) instead of doing everythign hard codes as lists
+?auto test?
+stop using json we need to find a less error invoking thing, not sure about yaml either honestly
+complete mission 2
 
 
 
@@ -26,8 +33,6 @@ some issues to point:
     - the fact that too many classes are used who does barely contain more than 2 lines of code is a readability killer as i have to trace 10 differnet short functions to know what a single block of code does
     - silent errors, for say reading a file when you call the function and it fails yes it prints that it failed but the caller doenst' know that instead he continues to run as if it worked fine, even worse it itself will cause an error as the returned type was an empty dictionary intead of dictionary with data, the errors must be handeled in teh caller too
     classes names should follow pascal case
-    Convert and Reconvert, what type of naming is this ;-;
+    Convert and Reconvert, bad naming
 
-    AUTO CONTINUE IS FALSE?!
-
-    desired yaw to zero??
+    auto continue was set to false for some missions btw

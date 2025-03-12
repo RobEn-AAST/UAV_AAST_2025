@@ -38,5 +38,7 @@
     "loiter_target_alt": 20,
     "loiter_rad": 50,
     "drop_close_delay": 2,
-    "obs_safe_dist": 5
+    "obs_safe_dist": 5,
+
+    "survey_alt": 60
 }

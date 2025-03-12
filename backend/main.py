@@ -1,6 +1,7 @@
 from modules.utils import apply_obs_avoidance
 from modules.missions import mission1, mission2
-from modules.Uav import Uav
+from modules.uav import Uav
+from modules.survey import camera_modules
 
 if __name__ == "__main__":
     config_path = "./files/data.json"
@@ -23,16 +24,18 @@ if __name__ == "__main__":
         [-35.3495058, 149.1543388],
         [-35.3653958, 149.1555405],
     ]
+    camera = camera_modules["sonya6000"]
 
     # this is how we run a mission
     wp_list = apply_obs_avoidance(wp_list, obs_list, uav.config_data["obs_safe_dist"])
     uav.before_mission_logic(fence_list)
     mission1(
-        wp_list=wp_list,
+        original_mission=wp_list,
         payload_pos=payload_pos,
         fence_list=fence_list,
         survey_grid=survey_grid,
         obs_list=obs_list,
+        camera=camera,
         uav=uav,
     )
     uav.end_mission_logic()

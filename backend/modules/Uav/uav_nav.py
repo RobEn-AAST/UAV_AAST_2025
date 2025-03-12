@@ -1,7 +1,7 @@
 from pymavlink import mavutil, mavwp
 
 
-class MavWp:
+class UavNav:
     def __init__(self, master: mavutil.mavlink_connection, config_data: dict) -> None:
         self.master = master
         self.config_data = config_data
@@ -14,7 +14,7 @@ class MavWp:
             self.master.target_system,
             self.master.target_component,
             0,  # seq (waypoint ID)
-            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,  # frame id (global relative altitude)
+            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT,  # frame id (global relative altitude)
             mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,  # mav_cmd (waypoint command)
             0,  # current (false)
             1,  # auto continue (false)
@@ -35,7 +35,7 @@ class MavWp:
             self.master.target_system,
             self.master.target_component,
             0,  # seq
-            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT,
             mavutil.mavlink.MAV_CMD_NAV_LOITER_TO_ALT,
             0,  # current
             1,  # auto continue
@@ -63,7 +63,7 @@ class MavWp:
             self.master.target_system,
             self.master.target_component,
             0,
-            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT,
             mavutil.mavlink.MAV_CMD_NAV_LAND,
             0,  # current
             1,  # auto continue
@@ -89,7 +89,7 @@ class MavWp:
             self.master.target_system,
             self.master.target_component,
             0,
-            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT,
             mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
             0,  # current
             1,  # auto continue
@@ -117,7 +117,7 @@ class MavWp:
             self.master.target_system,
             self.master.target_component,
             0,
-            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT,
             mavutil.mavlink.MAV_CMD_CONDITION_DELAY,
             0,  # current
             1,  # auto continue
@@ -145,7 +145,7 @@ class MavWp:
             self.master.target_system,
             self.master.target_component,
             0,  # seq (waypoint ID)
-            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT,
             mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
             0,  # current (false)
             1,  # auto continue
@@ -172,7 +172,7 @@ class MavWp:
             self.master.target_system,
             self.master.target_component,
             0,  # seq
-            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT,
             mavutil.mavlink.MAV_CMD_DO_SET_HOME,
             0,  # current
             1,  # auto continue

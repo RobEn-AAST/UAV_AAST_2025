@@ -1,16 +1,46 @@
 import pymavlink.dialects.v20.all as dialect
+import pymavlink.mavwp as mavwp
 import csv
 
 
-class uav_messages:
-    def __init__(self, master: dialect.MAVLink, config_data: dict):
+class UavMessages:
+    def __init__(self, master: dialect.MAVLink, config_data: dict, wp_loader: mavwp.MAVWPLoader) -> None:
         self.master = master
         self.config_data = config_data
+        self.wp_loader = wp_loader
+
+    def upload_missions(self) -> bool:
+        """Upload all waypoints to the vehicle with proper sequencing"""
+        try:
+            self.master.waypoint_count_send(self.wp_loader.count())
+
+            for i in range(self.wp_loader.count()):
+                msg = self.master.recv_match(
+                    type="MISSION_REQUEST", blocking=True, timeout=10
+                )
+                if msg is None:
+                    print(f"No response for waypoint {i}")
+                    return False
+
+                wp = self.wp_loader.wp(i)
+                wp.seq = i
+
+                self.master.mav.send(wp)
+
+            msg = self.master.recv_match(type="MISSION_ACK", blocking=True, timeout=10)
+            if msg is None:
+                print("No mission acknowledgment received")
+                return False
+
+            return True
+        except Exception as e:
+            print(f"Error uploading mission: {e}")
+            return False
 
     def upload_fence(self, fence_list: list[list[float]]):
         """expected format: [[lat, long]]"""
         if len(fence_list) == 0:
-            # todo add steps to skip fence
+            # todo add steps to skip fence aka parameters logic stuff
             return
 
         lat, long = self.config_data["home_lat"], self.config_data["home_long"]

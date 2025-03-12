@@ -1,40 +1,90 @@
 import pymavlink.dialects.v20.all as dialect
 import pymavlink.mavwp as mavwp
-import csv
+from pymavlink import mavutil
+
+import time
 
 
 class UavMessages:
-    def __init__(self, master: dialect.MAVLink, config_data: dict, wp_loader: mavwp.MAVWPLoader) -> None:
+    def __init__(
+        self, master: dialect.MAVLink, config_data: dict, wp_loader: mavwp.MAVWPLoader
+    ) -> None:
         self.master = master
         self.config_data = config_data
         self.wp_loader = wp_loader
 
-    def upload_missions(self) -> bool:
-        """Upload all waypoints to the vehicle with proper sequencing"""
-        try:
-            self.master.waypoint_count_send(self.wp_loader.count())
+        self.timeout = 10
 
-            for i in range(self.wp_loader.count()):
-                msg = self.master.recv_match(
-                    type="MISSION_REQUEST", blocking=True, timeout=10
-                )
-                if msg is None:
-                    print(f"No response for waypoint {i}")
-                    return False
+    def upload_mission(self):
+        """Upload mission using proper MAVLink protocol sequence"""
+        if not self.master or self.wp_loader.count() == 0:
+            print("No points to upload or no connection")
+            return False
 
-                wp = self.wp_loader.wp(i)
-                wp.seq = i
+        print(f"Uploading {self.wp_loader.count()} waypoints")
 
-                self.master.mav.send(wp)
+        # Send mission count first
+        self.master.mav.mission_count_send(
+            self.master.target_system,
+            self.master.target_component,
+            self.wp_loader.count(),
+            0,  # Mission type (0 = mission)
+        )
 
-            msg = self.master.recv_match(type="MISSION_ACK", blocking=True, timeout=10)
-            if msg is None:
-                print("No mission acknowledgment received")
-                return False
+        # try:
+        # Handle mission items requests
+        while True:
+            # Wait for mission request (new or retry)
+            req = self.master.recv_match(
+                type="MISSION_REQUEST", blocking=True, timeout=self.timeout
+            )
 
+            # Get requested waypoint from loader
+            wp = self.wp_loader.wp(req.seq)
+
+            # Send the waypoint
+            self.master.mav.send(wp)
+            print(f"Sent waypoint {req.seq + 1}/{self.wp_loader.count()}")
+
+            # Check if we've sent all items
+            if req.seq == self.wp_loader.count() - 1:
+                break
+
+        # Wait for final acknowledgment
+        ack = self.master.recv_match(
+            type="MISSION_ACK", blocking=True, timeout=self.timeout
+        )
+
+        if ack.type == mavutil.mavlink.MAV_MISSION_ACCEPTED:
+            print("Mission upload successful")
             return True
+
+        print(f"Upload failed: {ack.type}")
+        return False
+
+        # except Exception as e:
+        #     print(f"Upload failed: {str(e)}")
+        #     return False
+
+    def clear_mission(self) -> bool:
+        """Clear current mission with timeout handling"""
+
+        print("Clearing mission...")
+        self.master.mav.mission_clear_all_send(
+            self.master.target_system, self.master.target_component
+        )
+
+        try:
+            ack = self.master.recv_match(
+                type="MISSION_ACK", blocking=True, timeout=self.timeout
+            )
+            if ack.type == mavutil.mavlink.MAV_MISSION_ACCEPTED:
+                print("Mission cleared successfully")
+                return True
+            print(f"Clear failed: {ack.type}")
+            return False
         except Exception as e:
-            print(f"Error uploading mission: {e}")
+            print(f"Clear mission timeout: {str(e)}")
             return False
 
     def upload_fence(self, fence_list: list[list[float]]):
@@ -50,8 +100,6 @@ class UavMessages:
         FENCE_ACTION = "FENCE_ACTION".encode(encoding="utf8")
         FENCE_ENABLE = "FENCE_ENABLE".encode(encoding="utf-8")
         PARAM_INDEX = -1
-
-        # todo sned whether fence is enable based on fence list size, and set fence total as well parameters
 
         self.master.wait_heartbeat()
 
@@ -294,53 +342,3 @@ class UavMessages:
 
         # send the message to the vehicle
         self.master.mav.send(message)
-
-    def clear_mission(self):
-        message = dialect.MAVLink_mission_request_list_message(
-            target_system=self.master.target_system,
-            target_component=self.master.target_component,
-            mission_type=dialect.MAV_MISSION_TYPE_MISSION,
-        )
-
-        self.master.mav.send(message)
-
-        message = self.master.recv_match(
-            type=dialect.MAVLink_mission_count_message.msgname, blocking=True
-        )
-
-        message = message.to_dict()
-
-        count = message["count"]
-        print("Total mission item count befor:", count)
-
-        # create mission clear all message
-        message = dialect.MAVLink_mission_clear_all_message(
-            target_system=self.master.target_system,
-            target_component=self.master.target_component,
-            mission_type=dialect.MAV_MISSION_TYPE_MISSION,
-        )
-
-        # send mission clear all command to the master
-        self.master.mav.send(message)
-
-        # create mission request list message
-        message = dialect.MAVLink_mission_request_list_message(
-            target_system=self.master.target_system,
-            target_component=self.master.target_component,
-            mission_type=dialect.MAV_MISSION_TYPE_MISSION,
-        )
-
-        # send the message to the master
-        self.master.mav.send(message)
-
-        # wait mission count message
-        message = self.master.recv_match(
-            type=dialect.MAVLink_mission_count_message.msgname, blocking=True
-        )
-
-        # convert this message to dictionary
-        message = message.to_dict()
-
-        # get the mission item count
-        count = message["count"]
-        print("Total mission item count now:", count)

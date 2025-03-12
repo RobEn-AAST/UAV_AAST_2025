@@ -12,13 +12,15 @@ class Uav:
 
         with open(config_data_path, "r") as f:
             config_data = json.load(f)
+        self.config_data = config_data
+
+        self.init_bearing = 10  # todo calculate this upon launch
 
         self.master = master
-        self.config_data = config_data
         self.wp_loader = mavwp.MAVWPLoader()
-        self.messages = UavMessages(master, config_data, self.wp_loader)
-        self.nav = UavNav(master, config_data)
-        self.init_bearing = 10  # todo calculate this upon launch
+
+        self.messages = UavMessages(master=self.master, config_data=self.config_data, wp_loader=self.wp_loader)
+        self.nav = UavNav(master=self.master, config_data=self.config_data)
 
     def establish_connection(self, connection_string) -> mavutil.mavlink_connection:
         master = mavutil.mavlink_connection(connection_string)
@@ -82,4 +84,4 @@ class Uav:
 
     def end_mission_logic(self):
         self.landingSequence()
-        self.messages.upload_missions()
+        self.messages.upload_mission()

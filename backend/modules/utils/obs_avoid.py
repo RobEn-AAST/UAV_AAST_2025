@@ -120,7 +120,7 @@ def apply_obs_avoidance(
 
     if len(obs_list) == 0:
         for i, wp in enumerate(wp_list):
-            newWaypoints.append([wp[0], wp[1]])
+            newWaypoints.append([wp[0], wp[1], wp[2]])
 
     else:
         # combine close obstacles

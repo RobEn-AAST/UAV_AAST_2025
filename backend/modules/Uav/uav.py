@@ -65,7 +65,7 @@ class Uav:
         """
         for i in range(len(wp_list)):
             lat, long, alt = wp_list[i]
-            self.wp_loader.add(self.nav.waypoint(lat, long, alt))
+            self.wp_loader.add(self.nav.nav_waypoint(lat, long, alt))
 
     def add_home_wp(self):
         msg = self.master.recv_match(type="GLOBAL_POSITION_INT", blocking=True)

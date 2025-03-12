@@ -40,5 +40,7 @@
     "drop_close_delay": 2,
     "obs_safe_dist": 5,
 
-    "survey_alt": 60
+    "survey_alt": 60,
+
+    "bank_angle": 20
 }

@@ -1,3 +1,6 @@
+IMPORTANT FIX DUBIN PATH DON'T USE A FIXED APPROACH BEARING
+IMPORTANT STOP USING PLANE .JSON AS IT'S VWEERY BRITTLE AND SUBTLE TO MISTAKES
+
 frontend Enter connection string with a drop down for available options
 def uav_connect():
     print("choose the way of communication :")

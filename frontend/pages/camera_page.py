@@ -82,12 +82,9 @@ class ImageViewer(QMainWindow):
             )
         self.image_label.setAlignment(Qt.AlignCenter)
         self.image_label.setPixmap(scaled_pixmap)
-        #test
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     viewer = ImageViewer()
     viewer.show()
     sys.exit(app.exec_())
-            
-#lets see what will be done

@@ -7,7 +7,7 @@ from .uav_nav import UavNav
 
 class Uav:
     def __init__(self, connection_string: str, config_data_path: str) -> None:
-        master = self.establish_connection(connection_string)
+        master: mavutil.mavlink_connection = self.establish_connection(connection_string)
         self.home_lat, self.home_long = None, None
 
         with open(config_data_path, "r") as f:
@@ -22,7 +22,7 @@ class Uav:
         self.messages = UavMessages(master=self.master, config_data=self.config_data, wp_loader=self.wp_loader)
         self.nav = UavNav(master=self.master, config_data=self.config_data)
 
-    def establish_connection(self, connection_string) -> mavutil.mavlink_connection:
+    def establish_connection(self, connection_string):
         master = mavutil.mavlink_connection(connection_string)
         if not master.wait_heartbeat(timeout=10):
             raise ConnectionError(

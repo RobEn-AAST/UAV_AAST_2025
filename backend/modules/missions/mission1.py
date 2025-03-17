@@ -11,18 +11,13 @@ def mission1(
     payload_pos: list[float],
     fence_list: list[list[float]],
     survey_grid: list[list[float]],
-    obs_list: list[list[float]],
     camera: Camera,
     uav: Uav,
 ) -> bool:
-    search_wps = generateSurveyFromList(
-        survey_grid, camera.spacing, original_mission[-1], uav.config_data["survey_alt"]
-    )
-    uav.add_mission_waypoints(search_wps)
-
+    # 1. do original mission
     uav.add_mission_waypoints(original_mission)
 
-    # drop equation logic
+    # 2. drop the payload
     last_wp = original_mission[-1]
     before_last_wp = original_mission[-2]
     drop_offset = calc_drop_loc(
@@ -42,7 +37,7 @@ def mission1(
     min_cost = None
     best_path = None
 
-    for brng in range(0, 360, 1):
+    for brng in range(0, 360, 3):
         approach_wp = new_waypoint(
             payload_pos[0], payload_pos[1], approach_offset, brng
         )
@@ -59,10 +54,21 @@ def mission1(
             min_cost = cost
             best_path = path
 
-    drop_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, best_brng)
+    assert best_path is not None, "Could not find a valid path to drop location"
 
-    # add them in order best_path -> drop_wp then the servo logic
+    drop_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, best_brng)
+    
+    # todo reduce speed here
+    uav.add_mission_waypoints([[*pnt, MissionConfig.payload_alt] for pnt in best_path])
+    uav.add_mission_waypoints([[*drop_wp, MissionConfig.payload_alt]])
+
     uav.add_servo_dropping_wps()
+
+    # 3. do the survey grid exploration
+    search_wps = generateSurveyFromList(
+        survey_grid, camera.spacing, original_mission[-1]
+    )
+    uav.add_mission_waypoints(search_wps)
 
     print("done with mission")
     return True

@@ -8,6 +8,7 @@ if __name__ == "__main__":
     connection_string = "172.18.224.1:14550"
 
     uav = Uav(connection_string, config_path)
+    # for testing, shall be taken from either frontend or trusted files
     fence_list = [
         [-35.3637859, 149.1648209],
         [-35.3620536, 149.1644239],
@@ -16,18 +17,21 @@ if __name__ == "__main__":
     ]
     obs_list = []
     wp_list = [
-        [-35.3631954, 149.1658455, 100],
-        [-35.3623729, 149.1661727, 100],
-        [-35.3621454, 149.1656095, 100],
+        [-35.3630248, 149.1652286, 100],
+        [-35.3623773, 149.1651213, 100],
+        [-35.3618786, 149.1660601, 100],
+        [-35.3634054, 149.1664463, 100],
     ]
-    payload_pos = [-35.3631997, 149.1648638]
+    payload_pos = [-35.3627010, 149.1739941]
     survey_grid = [
         [-35.3614324, 149.1694236],
         [-35.3628410, 149.1696274],
         [-35.3628148, 149.1722023],
         [-35.3612399, 149.1718376],
     ]
+
     camera = camera_modules["sonya6000"]
+    # end for testing
 
     # this is how we run a mission
     wp_list = apply_obs_avoidance(wp_list, obs_list, uav.config_data["obs_safe_dist"])
@@ -37,7 +41,6 @@ if __name__ == "__main__":
         payload_pos=payload_pos,
         fence_list=fence_list,
         survey_grid=survey_grid,
-        obs_list=obs_list,
         camera=camera,
         uav=uav,
     )

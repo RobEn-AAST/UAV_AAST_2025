@@ -40,6 +40,7 @@ def mission1(
 
     best_brng = None
     min_cost = None
+    best_path = None
 
     for brng in range(0, 360, 1):
         approach_wp = new_waypoint(
@@ -51,16 +52,16 @@ def mission1(
             [approach_wp[0], approach_wp[1], brng],
         )
 
-        cost = calc_path_cost(path)
+        cost = calc_path_cost(path, fence_list)
 
         if min_cost is None or cost < min_cost:
             best_brng = brng
             min_cost = cost
+            best_path = path
 
-    approach_wp = new_waypoint(payload_pos[0], payload_pos[1], approach_offset, best_brng)
     drop_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, best_brng)
 
-    # add them in order approach_wp -> drop_wp then the servo logic
+    # add them in order best_path -> drop_wp then the servo logic
     uav.add_servo_dropping_wps()
 
     print("done with mission")

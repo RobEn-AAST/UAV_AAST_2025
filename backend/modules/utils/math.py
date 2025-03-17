@@ -140,3 +140,9 @@ def calc_drop_loc(H1, Vpa, Vag, angle):
     x = R[k - 1]
     y = H1
     return x
+
+
+if __name__ == '__main__':
+    p1 = [-35.3631385,	149.1607118]
+    p2 = [-35.3594462, 149.1606045]
+    print(get_bearing_2_points(*p1, *p2))

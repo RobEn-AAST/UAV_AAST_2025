@@ -1,6 +1,6 @@
 from pymavlink import mavutil
 from modules.utils import calc_drop_loc, get_bearing_2_points, new_waypoint
-from modules.Uav import Uav
+from modules.uav import Uav
 from modules.survey import generateSurveyFromList, Camera
 from modules.path_finder import get_optimum_path, calc_path_cost
 from modules.config import MissionConfig
@@ -26,7 +26,6 @@ def mission1(
         uav.config_data["windSpeed"],
         uav.config_data["windBearing"],
     )
-    approach_offset = drop_offset + MissionConfig.safe_approach_throw
 
     curr_plane_brng = get_bearing_2_points(
         before_last_wp[0], before_last_wp[1], last_wp[0], last_wp[1]
@@ -38,9 +37,7 @@ def mission1(
     best_path = None
 
     for brng in range(0, 360, 3):
-        approach_wp = new_waypoint(
-            payload_pos[0], payload_pos[1], approach_offset, brng
-        )
+        approach_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, brng + 180)
 
         path = get_optimum_path(
             [curr_plane_pos[0], curr_plane_pos[1], curr_plane_brng],
@@ -55,11 +52,14 @@ def mission1(
             best_path = path
 
     assert best_path is not None, "Could not find a valid path to drop location"
+    assert best_brng is not None, "Best bearing is none"
 
-    drop_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, best_brng)
-    
+    drop_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, best_brng + 180)
+
     # todo reduce speed here
-    uav.add_mission_waypoints([[*pnt, MissionConfig.payload_alt] for pnt in best_path])
+    uav.add_mission_waypoints(
+        [[*pnt, MissionConfig.payload_alt] for pnt in best_path[:-1]]
+    )
     uav.add_mission_waypoints([[*drop_wp, MissionConfig.payload_alt]])
 
     uav.add_servo_dropping_wps()
@@ -68,7 +68,7 @@ def mission1(
     search_wps = generateSurveyFromList(
         survey_grid, camera.spacing, original_mission[-1]
     )
-    uav.add_mission_waypoints(search_wps)
+    # uav.add_mission_waypoints(search_wps)
 
     print("done with mission")
     return True

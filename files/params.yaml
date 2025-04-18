@@ -1,0 +1,41 @@
+failsafe_full_disable:
+  fence_action: 0 # Action when geofence is breached (0=Report, 1=RTL, 2=Land)
+  batt_low_volt: 0 # Low battery voltage threshold (0=disabled)
+  batt_low_mah: 0 # Low battery capacity threshold (0=disabled)
+  batt_crt_volt: 0 # Critical battery voltage threshold (0=disabled)
+  batt_crt_mah: 0 # Critical battery capacity threshold (0=disabled)
+  thr_failsafe: 1 # Enable throttle failsafe (RTL/Land on signal loss)
+  fs_gcs_enabl: 0 # Disable GCS failsafe (0=disabled)
+  crash_detect: 0 # Disable crash detection (0=disabled)
+  brd_heat_targ: -1 # Disable board temperature failsafe (-1=disabled)
+  fs_vibe_enable: 0 # Vibration failsafe (0=disabled)
+
+preflight_sensor_checks:
+  EK3_GPS_Check: 0 # Disable EKF3 GPS health checks (0=disabled) WARNING! EXTREMLY NOT RECOMMENDED
+  compass_orient: 0 # Compass orientation (0=default)
+
+takeoff:
+  tkoff_accel_cnt: 1 # Acceleration samples for takeoff detection
+  tkoff_thr_max: 100 # Maximum throttle percentage during takeoff
+
+here2:
+  # HERE2 GPS Configuration
+  CAN_D1_PROTOCOL: 1 # CAN bus protocol for HERE2 (1=DroneCAN)
+  CAN_D2_PROTOCOL: 1 # CAN bus protocol for HERE2 (1=DroneCAN)
+  GPS_TYPE: 9 # HERE2 GPS module selection
+  CAN_P1_DRIVER: 1
+  CAN_P2_DRIVER: 1
+  NTF_LED_TYPES: 231
+
+here3:
+  CAN_D1_PROTOCOL: 1 #set virtual driver of CAN1 to DRONECAN
+
+  CAN_D2_PROTOCOL: 1 #set virtual driver of CAN 2 to DRONECAN
+
+  CAN_P1_DRIVER: 1 #set this parameter to enable CAN 1 bus
+
+  CAN_P2_DRIVER: 1 #set this parameter to enable CAN 2 bus
+
+  GPS_TYPE: 9 #set the communication protal type of GPS 1 to DRONECAN
+
+  NTF_LED_TYPES: 231 #Set to DRONECAN for LED type

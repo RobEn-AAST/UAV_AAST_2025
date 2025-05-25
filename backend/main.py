@@ -1,11 +1,11 @@
 from modules.utils import apply_obs_avoidance
 from modules.missions import mission1, mission2
-from modules.uav import Uav
+from modules.Uav import Uav
 from modules.survey import camera_modules
 
 if __name__ == "__main__":
     config_path = "./files/data.json"
-    connection_string = "172.18.224.1:14550"
+    connection_string = "172.17.176.1:14550"
 
     uav = Uav(connection_string, config_path)
     fence_list = []

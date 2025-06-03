@@ -68,7 +68,7 @@ def mission1(
     search_wps = generateSurveyFromList(
         survey_grid, camera.spacing, original_mission[-1]
     )
-    # uav.add_mission_waypoints(search_wps)
+    uav.add_mission_waypoints(search_wps)
 
     print("done with mission")
     return True

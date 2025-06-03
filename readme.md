@@ -1,3 +1,8 @@
+// todo put windspeed
+// todo adjust plane speed from parameters
+// todo 
+
+
 ## Backend
 
 *Aiming for 3 separate main objects*

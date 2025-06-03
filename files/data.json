@@ -19,7 +19,7 @@
     "raspberry_pi_connection_string":"coco",
     "telemetry sys": "com8",
     "aircraftAltitude" : 80,
-    "aircraftVelocity" : 25,
+    "aircraftVelocity" : 22,
     "windSpeed" : 0,
     "windBearing" : 190,
     "payload_servo_no": 9,
@@ -39,8 +39,5 @@
     "loiter_rad": 50,
     "drop_close_delay": 2,
     "obs_safe_dist": 5,
-
-    "survey_alt": 60,
-
     "bank_angle": 40
 }

@@ -1,6 +1,6 @@
 from modules.utils import apply_obs_avoidance
 from modules.missions import mission1, mission2
-from modules.uav import Uav
+from modules.Uav import Uav
 from modules.survey import camera_modules
 
 if __name__ == "__main__":
@@ -17,12 +17,10 @@ if __name__ == "__main__":
     ]
     obs_list = []
     wp_list = [
-        [-35.3630248, 149.1652286, 100],
-        [-35.3623773, 149.1651213, 100],
-        [-35.3618786, 149.1660601, 100],
-        [-35.3634054, 149.1664463, 100],
+        [-35.3627010,	149.1644239, 100],
+        [-35.3617648,	149.1655612, 100],
     ]
-    payload_pos = [-35.3612519, 149.1787845]
+    payload_pos = [-35.3625260,	149.1690803]
     survey_grid = [
         [-35.3614324, 149.1694236],
         [-35.3628410, 149.1696274],

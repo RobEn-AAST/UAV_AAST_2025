@@ -19,9 +19,9 @@ class ConnectionManager:
     def master(self):
         return self._master
 
-    def connect_to_uav(self, ip_address: str):
+    def connect_to_uav(self, ip_address: str, baud_rate: int):
         try:
-            master = mavutil.mavlink_connection(ip_address)
+            master = mavutil.mavlink_connection(ip_address, baud=baud_rate)
             if not master.wait_heartbeat(timeout=15):
                 raise ConnectionError(
                     "Failed to establish connection with UAV - no heartbeat received"

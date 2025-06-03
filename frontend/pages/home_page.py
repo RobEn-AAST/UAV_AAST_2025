@@ -12,37 +12,9 @@ class HomePage(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout(self)
-
-        # Title
-        title = QLabel("RobEn")
-        title.setStyleSheet(
-            """
-            font-size: 48px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin: 20px;
-        """
-        )
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        # Subtitle
-        subtitle = QLabel("UAV Control System")
-        subtitle.setStyleSheet(
-            """
-            font-size: 24px;
-            color: #34495e;
-            margin-bottom: 40px;
-        """
-        )
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        layout.addWidget(title)
-        layout.addWidget(subtitle)
-
-        # Connection section
-        connection_layout = QHBoxLayout()
-
-        # Port selection dropdown
+        
+        # Port selection section
+        port_layout = QHBoxLayout()
         self.port_combo = QComboBox()
         self.port_combo.addItems([
             "Select Port...",
@@ -51,29 +23,51 @@ class HomePage(QWidget):
             "COM4"
         ])
         self.port_combo.currentTextChanged.connect(self.handle_port_selection)
-
-        # IP Address input
+        port_layout.addWidget(QLabel("Port:"))
+        port_layout.addWidget(self.port_combo)
+        port_layout.addStretch()
+        
+        # Baud rate section
+        baud_layout = QHBoxLayout()
+        self.baud_combo = QComboBox()
+        self.baud_combo.addItems([
+            "Select Baud Rate...",
+            "57600",
+            "115200"
+        ])
+        baud_layout.addWidget(QLabel("Baud Rate:"))
+        baud_layout.addWidget(self.baud_combo)
+        baud_layout.addStretch()
+        
+        # Connection section
+        connection_layout = QHBoxLayout()
         self.ip_input = QLineEdit()
         self.ip_input.setPlaceholderText("Enter IP address (e.g., 172.18.224.1)")
-        self.ip_input.setMinimumWidth(200)
-
-        # Connect button
+        self.ip_input.setMinimumWidth(130)
+        
         self.connect_btn = QPushButton("Connect")
         self.connect_btn.clicked.connect(self.handle_connection)
-
-        # Status label
-        self.status_label = QLabel("Not Connected")
-        self.status_label.setStyleSheet("color: red")
-
-        connection_layout.addWidget(QLabel("Port:"))
-        connection_layout.addWidget(self.port_combo)
+        
         connection_layout.addWidget(QLabel("IP Address:"))
         connection_layout.addWidget(self.ip_input)
         connection_layout.addWidget(self.connect_btn)
-        connection_layout.addWidget(self.status_label)
-        connection_layout.addStretch()
-
+        
+        # Status section
+        status_layout = QHBoxLayout()
+        self.status_label = QLabel("Not Connected")
+        self.status_label.setStyleSheet("color: red")
+        status_layout.addWidget(self.status_label)
+        status_layout.addStretch()
+        
+        # Add all sections to main layout with some spacing
+        layout.addSpacing(20)
+        layout.addLayout(port_layout)
+        layout.addSpacing(10)
+        layout.addLayout(baud_layout)
+        layout.addSpacing(10)
         layout.addLayout(connection_layout)
+        layout.addSpacing(10)
+        layout.addLayout(status_layout)
         layout.addStretch()
 
     def handle_port_selection(self, port):
@@ -82,16 +76,24 @@ class HomePage(QWidget):
             self.ip_input.setText(f"/dev/{port}" if port.startswith("tty") else port)
 
     def handle_connection(self):
+        """Handle connection attempt"""
         ip_address = self.ip_input.text().strip()
+        baud_rate = self.baud_combo.currentText()
+
         if not ip_address:
             QMessageBox.warning(self, "Error", "Please enter an IP address")
             return
 
-        if self.connection_manager.connect_to_uav(ip_address):
+        if baud_rate == "Select Baud Rate...":
+            QMessageBox.warning(self, "Error", "Please select a baud rate")
+            return
+
+        if self.connection_manager.connect_to_uav(ip_address, int(baud_rate)):
             self.status_label.setText("Connected")
             self.status_label.setStyleSheet("color: green")
             self.connect_btn.setEnabled(False)
             self.ip_input.setEnabled(False)
+            self.baud_combo.setEnabled(False)
             QMessageBox.information(self, "Success", "Successfully connected to UAV")
         else:
             self.status_label.setText("Connection Failed")

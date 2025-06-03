@@ -1,6 +1,6 @@
 from pymavlink import mavutil
 from modules.utils import calc_drop_loc, get_bearing_2_points, new_waypoint
-from modules.uav import Uav
+from modules.Uav import Uav
 from modules.survey import generateSurveyFromList, Camera
 from modules.path_finder import get_optimum_path, calc_path_cost
 from modules.config import MissionConfig

@@ -55,7 +55,7 @@ class Uav:
         delay_wp = self.nav.delay_wp(self.config_data["drop_close_delay"])
         self.wp_loader.add(delay_wp)
 
-        self.wp_loader.add(self.nav.servo_wp(is_open=True))
+        self.wp_loader.add(self.nav.servo_wp(is_open=False))
 
     # extra logic idk
 

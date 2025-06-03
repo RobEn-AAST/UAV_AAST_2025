@@ -56,7 +56,6 @@ def mission1(
 
     drop_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, best_brng + 180)
 
-    # todo reduce speed here
     uav.add_mission_waypoints(
         [[*pnt, MissionConfig.payload_alt] for pnt in best_path[:-1]]
     )

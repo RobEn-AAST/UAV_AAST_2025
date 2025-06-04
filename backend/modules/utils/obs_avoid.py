@@ -142,11 +142,11 @@ def apply_obs_avoidance(
                 i += 1
 
         firstWp = wp_list[0]
-        newWaypoints.append([firstWp[0], firstWp[1], wp[2]])
+        newWaypoints.append([firstWp[0], firstWp[1], firstWp[2]])
         for i, wp in enumerate(wp_list[:-1]):
             nextWp = wp_list[i + 1]
             latA, longA, altA = wp[0], wp[1], wp[2]
-            latB, longB, altB = nextWp[0], nextWp[1], wp[2]
+            latB, longB, altB = nextWp[0], nextWp[1], nextWp[2]
 
             check_obstacles(latA, longA, altA, latB, longB, altB, None)
 

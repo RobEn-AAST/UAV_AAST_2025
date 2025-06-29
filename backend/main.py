@@ -1,19 +1,25 @@
 from modules.utils import apply_obs_avoidance
+import json
 from modules.missions import mission1, mission2
 from modules.Uav import Uav
 from modules.survey import camera_modules
-
+from modules.entries import uav_connect,choose_mission,config_choose
 if __name__ == "__main__":
-    config_path = "./files/data.json"
-    connection_string = "172.18.224.1:14550"
+    config_path = "../files/data.json"
+    with open (config_path, 'r') as f:
+        Json_data = json.load(f)
+    connection_string = uav_connect(Json_data)
+    
 
     uav = Uav(connection_string, config_path)
     # for testing, shall be taken from either frontend or trusted files
+
     fence_list = [
         [29.8224204464368, 30.8274435997009],
         [29.8225321426879, 30.8230876922607],
         [29.8147503386576, 30.8219075202942],
         [29.8224204464368, 30.8274435997009],
+        
     ]
     obs_list = [
         [29.81924640, 30.82612400, 5],

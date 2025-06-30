@@ -9,8 +9,6 @@ if __name__ == "__main__":
     with open (config_path, 'r') as f:
         Json_data = json.load(f)
     connection_string = uav_connect(Json_data)
-    
-
     uav = Uav(connection_string, config_path)
     config_choose(Json_data)
     mission_index = choose_mission()

@@ -37,13 +37,13 @@ def config_choose(My_data):
             the_choice = input("Enter the option number: ")
             if the_choice in valid_inputs:
                 pars_the_choice = [int(char) for char in the_choice]
-                if pars_the_choice[0]=='1':
+                if pars_the_choice[0]== 1:
                     convert.convert_to_csv(My_data['waypoints_file_waypoint'], My_data['waypoints_file_csv'])
-                if pars_the_choice[1]== '1':
+                if pars_the_choice[1]== 1:
                     convert.convert_to_csv(My_data['fence_file_waypoint'], My_data['fence_file_csv'])
-                if pars_the_choice[2]=='1':
+                if pars_the_choice[2]==1:
                     convert.convert_to_csv(My_data['payload_file_waypoint'], My_data['payload_file_csv'])
-                if pars_the_choice[3]=='1':
+                if pars_the_choice[3]==1:
                     convert.convert_to_csv(My_data['survey_waypoints'], My_data['survey_csv'])
                 break
                         

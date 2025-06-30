@@ -1,5 +1,5 @@
 from .Convertor import Convertor
-
+import csv
 
 
 def uav_connect(My_data):
@@ -27,7 +27,7 @@ def config_choose(My_data):
 
     if data_type == "2":
         convert = Convertor()
-        convert.convert_to_csv(My_data.config_data['obs_waypoints'], My_data.config_data['obs_csv'])
+        convert.convert_to_csv(My_data['obs_waypoints'], My_data['obs_csv'])
         print("Enter 111 to convert waypoint,fence and payload files.")
         print(
             "For any file you don't want to convert, use '0'. For example, '101' will convert the waypoint and payload files while leaving the fence file unchanged.")
@@ -38,11 +38,11 @@ def config_choose(My_data):
             if the_choice in valid_inputs:
                 pars_the_choice = [int(char) for char in the_choice]
                 if pars_the_choice[0]=='1':
-                    convert.convert_to_csv(My_data.config_data['waypoints_file_waypoint'], My_data.config_data['waypoints_file_csv'])
+                    convert.convert_to_csv(My_data['waypoints_file_waypoint'], My_data['waypoints_file_csv'])
                 if pars_the_choice[1]== '1':
-                    convert.convert_to_csv(My_data.config_data['fence_file_waypoint'], My_data.config_data['fence_file_csv'])
+                    convert.convert_to_csv(My_data['fence_file_waypoint'], My_data['fence_file_csv'])
                 if pars_the_choice[2]=='1':
-                    convert.convert_to_csv(My_data.config_data['payload_file_waypoint'], My_data.config_data['payload_file_csv'])
+                    convert.convert_to_csv(My_data['payload_file_waypoint'], My_data['payload_file_csv'])
                         
                 
             else:
@@ -61,3 +61,38 @@ def choose_mission():
     the_mission_index = input("Enter mission number.....  \n")
 
     return the_mission_index
+
+
+
+def return_wp_list(*config_data)->list:
+        for file in config_data: 
+            wp_list=[]
+            try:
+                    with open(config_data, mode='r') as file:
+                        csv_reader = csv.reader(file)
+
+                        # Convert CSV content to a list of lines
+                        lines = list(csv_reader)
+
+                        # Iterate over the rows, skipping the header
+                        for i, row in enumerate(lines[1:]):
+                            try:
+                                # Ensure the row is processed correctly
+                                row = ' '.join(row).split()
+                                lat, long, alt = float(row[0]), float(row[1]), float(row[2])
+                                wp_list.append([lat, long, alt])
+                            except ValueError as ve:
+                                print(f"Skipping malformed row at line {i + 2}: {row} (Error: {ve})")
+            except FileNotFoundError:
+                    print(f"CSV file '{config_data}' not found.")
+                    return
+            except Exception as e:
+                    print(f"An error occurred while reading the CSV file: {e}")
+                    return
+
+            if not wp_list:
+                    print("No valid waypoints found in the file.")
+            else:
+                    print(f"Successfully loaded {len(wp_list)} waypoints.")
+                    return wp_list
+

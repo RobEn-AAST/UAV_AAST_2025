@@ -9,6 +9,8 @@
     "obs_csv": "~/mesbah/roben/codes/UAV2025/UAV_AAST_2025/files/obstacles.csv",
     "obs_waypoints": "~/mesbah/roben/codes/UAV2025/UAV_AAST_2025/files/obstacles.waypoints",
     "wp_plus_obs_csv": "~/mesbah/roben/codes/UAV2025/UAV_AAST_2025/files/wp_plus_obs.csv",
+    "survey_csv": "~/mesbah/roben/codes/UAV2025/UAV_AAST_2025/files/survey.csv",
+    "survey_waypoints": "~/mesbah/roben/codes/UAV2025/UAV_AAST_2025/files/survey.waypoints",
     "home_lat": 29.8146013,
     "home_long": 30.8256198,
     "take_off_alt": 40,

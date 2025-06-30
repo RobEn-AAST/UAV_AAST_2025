@@ -32,7 +32,7 @@ def config_choose(My_data):
         print(
             "For any file you don't want to convert, use '0'. For example, '101' will convert the waypoint and payload files while leaving the fence file unchanged.")
 
-        valid_inputs = {'111', '110', '101', '100', '011', '010', '001', '000'}
+        valid_inputs = {f"{i:04b}" for i in range(2**4)}
         while True:
             the_choice = input("Enter the option number: ")
             if the_choice in valid_inputs:
@@ -43,6 +43,8 @@ def config_choose(My_data):
                     convert.convert_to_csv(My_data['fence_file_waypoint'], My_data['fence_file_csv'])
                 if pars_the_choice[2]=='1':
                     convert.convert_to_csv(My_data['payload_file_waypoint'], My_data['payload_file_csv'])
+                if pars_the_choice[3]=='1':
+                    convert.convert_to_csv(My_data['survey_waypoints'], My_data['survey_csv'])
                 break
                         
                 

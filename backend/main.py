@@ -20,8 +20,12 @@ if __name__ == "__main__":
                                                                        ,Json_data['payload_file_csv']
                                                                        ,Json_data['survey_csv']
                                                                        )
-
-    
+    payload_pos[0].pop()
+    for obs in obs_list:
+        obs[-1]=Json_data['obs_raduies']
+    for x in fence_list[0::]:
+        x.pop()
+        
     # fence_list = [
     #     [29.8224204464368, 30.8274435997009],
     #     [29.8225321426879, 30.8230876922607],

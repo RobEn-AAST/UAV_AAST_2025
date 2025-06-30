@@ -6,6 +6,7 @@ class Convertor:
     def extract_text(initial_file:str) -> Optional[List[str]]:
             try:
                 with open(initial_file,'r') as txt_file:
+                      print(f"Attempting to open: {initial_file}")
                       txt_data = txt_file.readlines() # this would return list of the lines in the file
                       return txt_data
             except FileNotFoundError:

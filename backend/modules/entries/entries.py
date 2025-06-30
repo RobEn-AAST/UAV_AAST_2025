@@ -43,6 +43,7 @@ def config_choose(My_data):
                     convert.convert_to_csv(My_data['fence_file_waypoint'], My_data['fence_file_csv'])
                 if pars_the_choice[2]=='1':
                     convert.convert_to_csv(My_data['payload_file_waypoint'], My_data['payload_file_csv'])
+                break
                         
                 
             else:
@@ -65,11 +66,12 @@ def choose_mission():
 
 
 def return_wp_list(*config_data)->list:
+        results=[]
         for file in config_data: 
             wp_list=[]
             try:
-                    with open(config_data, mode='r') as file:
-                        csv_reader = csv.reader(file)
+                    with open(file, mode='r') as f:
+                        csv_reader = csv.reader(f)
 
                         # Convert CSV content to a list of lines
                         lines = list(csv_reader)
@@ -83,16 +85,12 @@ def return_wp_list(*config_data)->list:
                                 wp_list.append([lat, long, alt])
                             except ValueError as ve:
                                 print(f"Skipping malformed row at line {i + 2}: {row} (Error: {ve})")
+                    results.append(wp_list)
             except FileNotFoundError:
                     print(f"CSV file '{config_data}' not found.")
                     return
             except Exception as e:
                     print(f"An error occurred while reading the CSV file: {e}")
                     return
-
-            if not wp_list:
-                    print("No valid waypoints found in the file.")
-            else:
-                    print(f"Successfully loaded {len(wp_list)} waypoints.")
-                    return wp_list
+        return (*results[:5],)            
 

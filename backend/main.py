@@ -56,7 +56,7 @@ if __name__ == "__main__":
     uav.before_mission_logic(fence_list)
     mission1(
         original_mission=wp_list,
-        payload_pos=payload_pos,
+        payload_pos=payload_pos[0],
         fence_list=fence_list,
         survey_grid=survey_grid,
         camera=camera,

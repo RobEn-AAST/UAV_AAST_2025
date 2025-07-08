@@ -1,17 +1,28 @@
 from modules.utils import apply_obs_avoidance
 import json
+from sys import platform
+from os import path
 from modules.missions import mission1, mission2
 from modules.Uav import Uav
 from modules.survey import camera_modules
 from modules.entries import uav_connect,choose_mission,config_choose,return_wp_list
 if __name__ == "__main__":
-    config_path = "../files/data.json"
+
+    filepath = (__file__).replace(path.basename(__file__), '')
+
+    config_path = filepath + "..\\files\\data.json"
+    if platform == "linux" or platform == "linux2":
+        config_path = filepath + "../files/data.json"
+
     with open (config_path, 'r') as f:
         Json_data = json.load(f)
+    
     connection_string = uav_connect(Json_data)
     uav = Uav(connection_string, config_path)
+
     config_choose(Json_data)
     mission_index = choose_mission()
+    
     wp_list,fence_list,obs_list,payload_pos,survey_grid=return_wp_list(Json_data['waypoints_file_csv']
                                                                        ,Json_data['fence_file_csv']
                                                                        ,Json_data['obs_csv']

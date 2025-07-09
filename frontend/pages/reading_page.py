@@ -2,8 +2,8 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                             QLabel, QLineEdit, QGridLayout, QGroupBox,
                             QTableWidget, QHBoxLayout, QTableWidgetItem)
 from PyQt6.QtCore import Qt
-from utils.file_handlers import FileHandler
-from utils.pdf_reader import convert_pdf
+from frontend.utils.file_handlers import FileHandler
+from frontend.utils.pdf_reader import convert_pdf
 from csv import reader
 import os
 

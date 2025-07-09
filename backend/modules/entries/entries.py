@@ -7,7 +7,7 @@ from os import path
 
 def uav_connect(My_data):
     print("choose the way of communication: ")
-    print("connection 1 is '127.0.0.1:14550' for local host")
+    print("connection 1 is '172.26.16.1:14550' for local host")
     print("connection 2 is for network sharing")
     print("connection 3 for telemetry system")
     connection_type = input("Enter connection number:  ")
@@ -66,7 +66,6 @@ def choose_mission():
     print("\nChoose the mission you want :")
     print("enter '1' for mission 1 'payload mission' ")
     print("enter '2' for mission 2 'survey mission' ")
-    print("enter '3' for mission 3 'endurance' ")
 
     the_mission_index = input("Enter mission number: ")
 

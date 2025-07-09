@@ -1,6 +1,6 @@
 import json
 from pymavlink import mavutil, mavwp
-from modules.utils import new_waypoint
+from backend.modules.utils import new_waypoint
 from .uav_messages import UavMessages
 from .uav_nav import UavNav
 

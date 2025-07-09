@@ -1,11 +1,11 @@
-from modules.utils import apply_obs_avoidance
+from backend.modules.utils import apply_obs_avoidance
 import json
 from sys import platform
 from os import path
-from modules.missions import mission1, mission2
-from modules.Uav import Uav
-from modules.survey import camera_modules
-from modules.entries import uav_connect,choose_mission,config_choose,return_wp_list
+from backend.modules.missions import mission1, mission2
+from backend.modules.Uav import Uav
+from backend.modules.survey import camera_modules
+from backend.modules.entries import uav_connect,choose_mission,config_choose,return_wp_list
 if __name__ == "__main__":
 
     filepath = (__file__).replace(path.basename(__file__), '')

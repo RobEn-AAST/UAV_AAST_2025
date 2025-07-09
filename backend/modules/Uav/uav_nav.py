@@ -70,6 +70,7 @@ class UavNav:
     def servo_wp(self, is_open: bool):
         """Create servo control waypoint."""
         pwm_key = "PAYLOAD_OPEN_PWM_VALUE" if is_open else "PAYLOAD_CLOSE_PWM_VALUE"
+        
         return self._create_waypoint(
             command=mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
             param1=self.config_data["payload_servo_no"],

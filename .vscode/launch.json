@@ -9,6 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/backend/main.py",
+            // "program": "${workspaceFolder}/frontend/main.py",
             "console": "integratedTerminal"
         }
     ]

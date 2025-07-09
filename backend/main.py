@@ -1,34 +1,41 @@
 from modules.utils import apply_obs_avoidance
+import json
+from sys import platform
+from os import path
 from modules.missions import mission1, mission2
-from modules.uav import Uav
+from modules.Uav import Uav
 from modules.survey import camera_modules
-
+from modules.entries import uav_connect,choose_mission,config_choose,return_wp_list
 if __name__ == "__main__":
-    config_path = "./files/data.json"
-    connection_string = "172.18.224.1:14550"
 
+    filepath = (__file__).replace(path.basename(__file__), '')
+
+    config_path = filepath + "..\\files\\data.json"
+    if platform == "linux" or platform == "linux2":
+        config_path = filepath + "../files/data.json"
+
+    with open (config_path, 'r') as f:
+        Json_data = json.load(f)
+    
+    connection_string = uav_connect(Json_data)
     uav = Uav(connection_string, config_path)
-    # for testing, shall be taken from either frontend or trusted files
-    fence_list = [
-        [-35.3637859, 149.1648209],
-        [-35.3620536, 149.1644239],
-        [-35.3618611, 149.1661835],
-        [-35.3635497, 149.1665268],
-    ]
-    obs_list = []
-    wp_list = [
-        [-35.3630248, 149.1652286, 100],
-        [-35.3623773, 149.1651213, 100],
-        [-35.3618786, 149.1660601, 100],
-        [-35.3634054, 149.1664463, 100],
-    ]
-    payload_pos = [-35.3612519, 149.1787845]
-    survey_grid = [
-        [-35.3614324, 149.1694236],
-        [-35.3628410, 149.1696274],
-        [-35.3628148, 149.1722023],
-        [-35.3612399, 149.1718376],
-    ]
+
+    config_choose(Json_data)
+    mission_index = choose_mission()
+    
+    wp_list,fence_list,obs_list,payload_pos,survey_grid=return_wp_list(Json_data['waypoints_file_csv']
+                                                                       ,Json_data['fence_file_csv']
+                                                                       ,Json_data['obs_csv']
+                                                                       ,Json_data['payload_file_csv']
+                                                                       ,Json_data['survey_csv']
+                                                                       )
+    payload_pos[0].pop()
+    for obs in obs_list:
+        obs[-1]=Json_data['obs_raduies']
+    for x in fence_list[0::]:
+        x.pop()
+        
+   
 
     camera = camera_modules["sonya6000"]
     # end for testing
@@ -38,7 +45,7 @@ if __name__ == "__main__":
     uav.before_mission_logic(fence_list)
     mission1(
         original_mission=wp_list,
-        payload_pos=payload_pos,
+        payload_pos=payload_pos[0],
         fence_list=fence_list,
         survey_grid=survey_grid,
         camera=camera,

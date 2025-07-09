@@ -1,6 +1,6 @@
 from pymavlink import mavutil
 from modules.utils import calc_drop_loc, get_bearing_2_points, new_waypoint
-from modules.uav import Uav
+from modules.Uav import Uav
 from modules.survey import generateSurveyFromList, Camera
 from modules.path_finder import get_optimum_path, calc_path_cost
 from modules.config import MissionConfig
@@ -56,11 +56,10 @@ def mission1(
 
     drop_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, best_brng + 180)
 
-    # todo reduce speed here
     uav.add_mission_waypoints(
-        [[*pnt, MissionConfig.payload_alt] for pnt in best_path[:-1]]
+        [[*pnt, uav.config_data['aircraftAltitude']] for pnt in best_path[:-1]]
     )
-    uav.add_mission_waypoints([[*drop_wp, MissionConfig.payload_alt]])
+    uav.add_mission_waypoints([[*drop_wp, uav.config_data["survey_alt"]]])
 
     uav.add_servo_dropping_wps()
 
@@ -68,7 +67,7 @@ def mission1(
     search_wps = generateSurveyFromList(
         survey_grid, camera.spacing, original_mission[-1]
     )
-    # uav.add_mission_waypoints(search_wps)
+    uav.add_mission_waypoints(search_wps)
 
     print("done with mission")
     return True

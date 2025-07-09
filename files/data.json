@@ -41,6 +41,6 @@
     "loiter_rad": 50,
     "drop_close_delay": 2,
     "obs_safe_dist": 5,
-    "bank_angle": 40,
+    "bank_angle":40,
     "obs_raduies":5
 }

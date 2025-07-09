@@ -7,7 +7,6 @@ from datetime import datetime
 import os
 import json
 
-
 from backend.main import mission1
 from backend.modules.Uav import Uav
 from backend.modules.survey import camera_modules

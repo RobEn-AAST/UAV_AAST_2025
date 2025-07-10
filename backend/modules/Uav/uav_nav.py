@@ -101,3 +101,21 @@ class UavNav:
             lat=lat,
             lon=lon,
         )
+        
+    def do_jump_wp(self, target_seq, repeat_count):
+        return mavutil.mavlink.MAVLink_mission_item_message(
+            self.master.target_system,
+            self.master.target_component,
+            seq=0,  # seq is set later by uploader or mission loader
+            frame=mavutil.mavlink.MAV_FRAME_MISSION,
+            command=mavutil.mavlink.MAV_CMD_DO_JUMP,
+            current=0,
+            autocontinue=1,
+            param1=target_seq,
+            param2=repeat_count,
+            param3=0,
+            param4=0,
+            x=0,
+            y=0,
+            z=0
+        )

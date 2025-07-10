@@ -3,7 +3,7 @@ import signal
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QTabWidget
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import QTimer
-from pages import HomePage, ReadingPage, MissionsPage, ParametersPage, CameraPage
+from frontend.pages import HomePage, ReadingPage, MissionsPage, ParametersPage, CameraPage
 
 class MainWindow(QMainWindow):
     def __init__(self):

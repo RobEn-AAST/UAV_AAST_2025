@@ -1,1 +1,1 @@
-from .uav import Uav
+from backend.modules.Uav.uav import Uav

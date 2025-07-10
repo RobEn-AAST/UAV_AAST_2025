@@ -1,6 +1,6 @@
-from .dubins import calcDubinsPath, dubins_traj
-from .utils import format_for_dubins, format_path_to_latlon
-from modules.config import UavConfig
+from backend.modules.path_finder.dubins import calcDubinsPath, dubins_traj
+from backend.modules.path_finder.utils import format_for_dubins, format_path_to_latlon
+from backend.modules.config import UavConfig
 
 
 def get_optimum_path(wp1_lat_lon_brng, wp2_lat_lon_brng, wps_step_size=20):

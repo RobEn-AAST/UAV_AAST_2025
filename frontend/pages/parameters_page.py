@@ -1,19 +1,45 @@
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFileDialog, QTextEdit,
-    QTableWidget, QTableWidgetItem, QMessageBox, QHeaderView, QAbstractScrollArea
+    QTableWidget, QTableWidgetItem, QMessageBox, QHeaderView, QAbstractScrollArea,
+    QComboBox
 )
 from PyQt6.QtCore import Qt
 from pymavlink import mavutil
 import yaml
+import serial.tools.list_ports
 
 class ParametersPage(QWidget):
     def __init__(self):
         super().__init__()
-        self.parameters = {}  # Store loaded parameters
+        self.parameters = {}
         self.init_ui()
 
     def init_ui(self):
         layout = QVBoxLayout(self)
+
+        # Serial Port and Baudrate Dropdowns
+        serial_layout = QHBoxLayout()
+
+        # Port Dropdown
+        self.port_dropdown = QComboBox()
+        self.port_dropdown.setFixedHeight(30)
+        self.refresh_ports()
+        serial_layout.addWidget(self.port_dropdown)
+
+        # Baudrate Dropdown
+        self.baud_dropdown = QComboBox()
+        self.baud_dropdown.setFixedHeight(30)
+        self.baud_dropdown.addItems(["57600", "115200"])
+        self.baud_dropdown.setCurrentText("57600")
+        serial_layout.addWidget(self.baud_dropdown)
+
+        layout.addLayout(serial_layout)
+
+        # Refresh Ports Button
+        self.refresh_button = QPushButton("Refresh Ports")
+        self.refresh_button.setFixedHeight(30)
+        self.refresh_button.clicked.connect(self.refresh_ports)
+        layout.addWidget(self.refresh_button)
 
         # Load Button
         self.load_button = QPushButton("Load Parameters (YAML)")
@@ -22,33 +48,31 @@ class ParametersPage(QWidget):
         self.load_button.clicked.connect(self.load_yaml)
         layout.addWidget(self.load_button)
 
-        # Table to Display Parameters (4 Columns)
-        self.param_table = QTableWidget(10, 4)  # Start with 10 empty rows
+        # Table
+        self.param_table = QTableWidget(10, 4)
         self.param_table.setHorizontalHeaderLabels(["Parameter", "Value", "Parameter", "Value"])
         self.param_table.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
         self.param_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.param_table.verticalHeader().setVisible(False)
-        self.param_table.itemChanged.connect(self.manual_param_edit)  # Track manual edits
+        self.param_table.itemChanged.connect(self.manual_param_edit)
         layout.addWidget(self.param_table)
 
-        # Buttons Layout (Clear Table + Upload)
+        # Buttons Layout
         button_layout = QHBoxLayout()
 
-        # Clear Table Button (Left)
         self.clear_button = QPushButton("Clear Table")
         self.clear_button.setFixedHeight(40)
         self.clear_button.setStyleSheet("font-size: 16px;")
         self.clear_button.clicked.connect(self.clear_table)
         button_layout.addWidget(self.clear_button)
 
-        # Upload Button (Right)
         self.upload_button = QPushButton("Upload to UAV")
         self.upload_button.setFixedHeight(40)
         self.upload_button.setStyleSheet("font-size: 16px;")
         self.upload_button.clicked.connect(self.confirm_upload)
         button_layout.addWidget(self.upload_button)
 
-        layout.addLayout(button_layout)  # Add the buttons to the main layout
+        layout.addLayout(button_layout)
 
         # Status Log
         self.status_log = QTextEdit()
@@ -57,37 +81,40 @@ class ParametersPage(QWidget):
 
         self.setLayout(layout)
 
+    def refresh_ports(self):
+        self.port_dropdown.clear()
+        ports = serial.tools.list_ports.comports()
+        for port in ports:
+            self.port_dropdown.addItem(port.device)
+        if not ports:
+            self.port_dropdown.addItem("No Ports Found")
+
     def log_message(self, message):
-        """Log only important messages to the status text area."""
         self.status_log.append(f"> {message}")
 
     def load_yaml(self):
-        """Open file dialog to load YAML file and display its content."""
         file_path, _ = QFileDialog.getOpenFileName(self, "Select YAML File", "", "YAML Files (*.yaml *.yml)")
         if not file_path:
-            return  # User canceled
+            return
 
         try:
             with open(file_path, "r") as file:
                 yaml_data = yaml.safe_load(file)
 
             self.parameters.clear()
-            self.param_table.setRowCount(10)  # Reset table with 10 rows
+            self.param_table.setRowCount(10)
 
             param_list = []
             for section, params in yaml_data.items():
                 for param_name, param_value in params.items():
                     param_list.append((param_name, param_value))
 
-            # Add parameters to table (2 per row)
             for i in range(len(param_list)):
-                row = i // 2  # Every 2 parameters go in one row
-                col_offset = (i % 2) * 2  # Either (0,1) or (2,3)
-
-                self.param_table.setItem(row, col_offset, QTableWidgetItem(param_list[i][0]))  # Parameter
-                self.param_table.setItem(row, col_offset + 1, QTableWidgetItem(str(param_list[i][1])))  # Value
-
-                self.parameters[param_list[i][0]] = param_list[i][1]  # Store in dictionary
+                row = i // 2
+                col_offset = (i % 2) * 2
+                self.param_table.setItem(row, col_offset, QTableWidgetItem(param_list[i][0]))
+                self.param_table.setItem(row, col_offset + 1, QTableWidgetItem(str(param_list[i][1])))
+                self.parameters[param_list[i][0]] = param_list[i][1]
 
             self.log_message(f"Loaded {len(param_list)} parameters successfully.")
 
@@ -95,33 +122,30 @@ class ParametersPage(QWidget):
             self.log_message(f"Error loading YAML: {str(e)}")
 
     def clear_table(self):
-        """Clear only the parameter values, keeping the names intact."""
         for row in range(self.param_table.rowCount()):
-            for col in [1, 3]:  # Only clear value columns
+            for col in [1, 3]:
                 if self.param_table.item(row, col):
-                    self.param_table.setItem(row, col, QTableWidgetItem(""))  # Clear the value
+                    self.param_table.setItem(row, col, QTableWidgetItem(""))
         self.parameters.clear()
         self.log_message("Cleared all parameter values.")
 
     def manual_param_edit(self, item):
-        """Update the parameters dictionary when a user manually edits a value."""
         row = item.row()
         col = item.column()
 
-        if col % 2 == 0:  # Parameter name column (0 or 2)
+        if col % 2 == 0:
             param_name = item.text().strip()
             param_value_item = self.param_table.item(row, col + 1)
             param_value = param_value_item.text().strip() if param_value_item else ""
-        else:  # Value column (1 or 3)
+        else:
             param_value = item.text().strip()
             param_name_item = self.param_table.item(row, col - 1)
             param_name = param_name_item.text().strip() if param_name_item else ""
 
         if param_name:
-            self.parameters[param_name] = param_value  # Store in dictionary
+            self.parameters[param_name] = param_value
 
     def confirm_upload(self):
-        """Ask for confirmation before uploading."""
         if not self.parameters:
             QMessageBox.warning(self, "No Parameters", "No parameters loaded or entered. Please add parameters first.")
             return
@@ -136,18 +160,35 @@ class ParametersPage(QWidget):
             self.upload_parameters()
 
     def upload_parameters(self):
-        """Upload parameters to UAV using MAVLink."""
-        port = "/dev/ttyUSB0"  # Update if needed
-        baudrate = 57600
+        port = self.port_dropdown.currentText().strip()
+        baudrate_text = self.baud_dropdown.currentText().strip()
+
+        if not port or port == "No Ports Found":
+            QMessageBox.critical(self, "Upload Failed", "Please select a valid serial port.")
+            return
 
         try:
+            baudrate = int(baudrate_text)
+        except ValueError:
+            QMessageBox.critical(self, "Upload Failed", "Invalid baudrate.")
+            return
+
+        try:
+            self.log_message(f"Connecting to {port} at {baudrate}...")
             connection = mavutil.mavlink_connection(port, baud=baudrate)
             connection.wait_heartbeat()
+            self.log_message("Heartbeat received. Starting upload...")
 
             for param_name, param_value in self.parameters.items():
+                try:
+                    value = float(param_value)
+                except ValueError:
+                    self.log_message(f"Skipping {param_name}: invalid number")
+                    continue
+
                 connection.mav.param_set_send(
                     connection.target_system, connection.target_component,
-                    param_name.encode(), float(param_value), mavutil.mavlink.MAV_PARAM_TYPE_REAL32
+                    param_name.encode(), value, mavutil.mavlink.MAV_PARAM_TYPE_REAL32
                 )
 
             self.log_message("Parameters uploaded successfully.")

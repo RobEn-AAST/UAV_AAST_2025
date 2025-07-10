@@ -36,4 +36,14 @@ camera_modules = {
         sensorWidth=6.17,
         sensorHeight=4.56,
     ),
+    "goproHero13":Camera(
+        spacingAt100Alt=54.91,
+        focalLength=34,
+        imgWidth=5568,
+        imgHeight=4872,
+        sensorWidth=71.8,
+        sensorHeight=50.8,
+        
+    )
+
 }

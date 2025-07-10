@@ -1,7 +1,6 @@
 from .Convertor import Convertor
 from .pdf_reader_files import convert_pdf
 import csv
-from sys import platform
 from os import path
 
 

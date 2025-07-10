@@ -1,5 +1,5 @@
 from typing import List
-from backend.modules.utils import get_dist_2_points
+from ..utils import get_dist_2_points
 
 
 class RectPoints:

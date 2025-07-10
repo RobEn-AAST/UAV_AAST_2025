@@ -1,1 +1,1 @@
-from backend.modules.Uav.uav import Uav
+from .uav import Uav  # noqa: F401

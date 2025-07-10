@@ -1,2 +1,2 @@
-from backend.modules.survey.survey import generateSurveyFromRect, generateSurveyFromList
-from backend.modules.survey.camera import Camera, camera_modules
+from .survey import generateSurveyFromRect, generateSurveyFromList  # noqa: F401
+from .camera import Camera, camera_modules  # noqa: F401

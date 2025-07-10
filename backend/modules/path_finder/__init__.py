@@ -1,2 +1,2 @@
-from backend.modules.path_finder.main import get_optimum_path
-from backend.modules.path_finder.cost import calc_path_cost
+from .main import get_optimum_path  # noqa: F401
+from .cost import calc_path_cost  # noqa: F401

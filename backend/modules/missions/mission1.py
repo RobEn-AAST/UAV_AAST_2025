@@ -55,7 +55,7 @@ def mission1(
     drop_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, best_brng + 180)
 
     uav.add_mission_waypoints(
-        [[*pnt, uav.config_data['aircraftAltitude']] for pnt in best_path[:-1]]
+        [[*pnt, uav.config_data['aircraftAltitude']] for pnt in best_path[-6:-1:1]]
     )
     uav.add_mission_waypoints([[*drop_wp, uav.config_data["survey_alt"]]])
 

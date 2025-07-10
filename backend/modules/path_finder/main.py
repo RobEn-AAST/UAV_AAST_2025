@@ -3,7 +3,7 @@ from .utils import format_for_dubins, format_path_to_latlon
 from ..config import UavConfig
 
 
-def get_optimum_path(wp1_lat_lon_brng, wp2_lat_lon_brng, wps_step_size=20):
+def get_optimum_path(wp1_lat_lon_brng, wp2_lat_lon_brng, wps_step_size=40):
     bank_angle = UavConfig.bank_angle
     velocity = UavConfig.aircraft_velocity
     wp1, zone = format_for_dubins(wp1_lat_lon_brng)

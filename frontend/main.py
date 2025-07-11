@@ -1,9 +1,15 @@
 import sys
 import signal
+import os
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QTabWidget
 from PyQt6.QtGui import QFont
 from PyQt6.QtCore import QTimer
-from frontend.pages import HomePage, ReadingPage, MissionsPage, ParametersPage, CameraPage
+
+# Add the parent directory to the Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Now import using relative paths or adjust the imports
+from pages import HomePage, ReadingPage, MissionsPage, ParametersPage, CameraPage
 
 class MainWindow(QMainWindow):
     def __init__(self):

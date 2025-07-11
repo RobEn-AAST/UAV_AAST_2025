@@ -6,12 +6,19 @@ from PyQt6.QtCore import pyqtSignal, Qt, QTimer, QThread, QObject
 from datetime import datetime
 import os
 import json
+import sys
 
-from backend.main import mission1
-from backend.modules.Uav import Uav
-from backend.modules.survey import camera_modules
-from backend.modules.entries import uav_connect, config_choose, choose_mission, return_wp_list
-from backend.modules.utils import apply_obs_avoidance
+# Add backend path to sys.path
+backend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'backend'))
+if backend_path not in sys.path:
+    sys.path.insert(0, backend_path)
+
+# Now import backend modules
+from modules.missions import mission1
+from modules.Uav import Uav
+from modules.survey import camera_modules
+from modules.entries import uav_connect, config_choose, choose_mission, return_wp_list
+from modules.utils import apply_obs_avoidance
 
 
 class Mission1Worker(QObject):

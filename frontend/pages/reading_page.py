@@ -304,10 +304,12 @@ class ReadingPage(QWidget):
             QMessageBox.critical(self, "Conversion Failed", message)
 
     def log_message(self, message):
-        """Add a message to the status log"""
+        """Add a message to the status log with black text color"""
         from datetime import datetime
         timestamp = datetime.now().strftime("%H:%M:%S")
+        self.status_log.setTextColor(Qt.GlobalColor.black)
         self.status_log.append(f"[{timestamp}] {message}")
+        self.status_log.setTextColor(Qt.GlobalColor.black)  # Ensure color stays black for next messages
         
         # Auto-scroll to bottom
         scrollbar = self.status_log.verticalScrollBar()

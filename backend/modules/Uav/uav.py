@@ -1,6 +1,6 @@
 import json
 from pymavlink import mavutil, mavwp
-from modules.utils import new_waypoint
+from backend.modules.utils import new_waypoint
 from .uav_messages import UavMessages
 from .uav_nav import UavNav
 
@@ -31,6 +31,21 @@ class Uav:
         print("Connection established with UAV")
 
         return master
+    
+    def disconnect(self):
+        if self.master:
+            try:
+                self.master.close()
+                self.master = None
+                print("UAV connection closed.")
+                return True
+            except Exception as e:
+                print(f"Error closing UAV connection: {e}")
+                return False
+        else:
+            print("No UAV connection to close.")
+            return False
+
 
     def takeoff_sequence(self):
         self.wp_loader.insert(1, self.nav.takeoff_wp(self.home_lat, self.home_long))

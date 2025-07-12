@@ -1,8 +1,5 @@
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
-                            QLineEdit, QLabel, QMessageBox, QComboBox)
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QMessageBox, QComboBox
 from utils.connection_manager import ConnectionManager
-
 
 class HomePage(QWidget):
     def __init__(self):
@@ -42,15 +39,20 @@ class HomePage(QWidget):
         # Connection section
         connection_layout = QHBoxLayout()
         self.ip_input = QLineEdit()
-        self.ip_input.setPlaceholderText("Enter IP address (e.g., 172.18.224.1)")
+        self.ip_input.setPlaceholderText("Enter IP address or port (e.g., 172.18.224.1 or /dev/ttyUSB0)")
         self.ip_input.setMinimumWidth(130)
         
         self.connect_btn = QPushButton("Connect")
         self.connect_btn.clicked.connect(self.handle_connection)
         
-        connection_layout.addWidget(QLabel("IP Address:"))
+        self.disconnect_btn = QPushButton("Disconnect")
+        self.disconnect_btn.clicked.connect(self.handle_disconnection)
+        self.disconnect_btn.setEnabled(False)  # Disabled initially
+
+        connection_layout.addWidget(QLabel("IP Address / Port:"))
         connection_layout.addWidget(self.ip_input)
         connection_layout.addWidget(self.connect_btn)
+        connection_layout.addWidget(self.disconnect_btn)
         
         # Status section
         status_layout = QHBoxLayout()
@@ -71,27 +73,28 @@ class HomePage(QWidget):
         layout.addStretch()
 
     def handle_port_selection(self, port):
-        """Handle port selection from dropdown"""
         if port != "Select Port...":
             self.ip_input.setText(f"/dev/{port}" if port.startswith("tty") else port)
 
     def handle_connection(self):
-        """Handle connection attempt"""
         ip_address = self.ip_input.text().strip()
         baud_rate = self.baud_combo.currentText()
 
         if not ip_address:
-            QMessageBox.warning(self, "Error", "Please enter an IP address")
+            QMessageBox.warning(self, "Error", "Please enter an IP address or port")
             return
 
         if baud_rate == "Select Baud Rate...":
             QMessageBox.warning(self, "Error", "Please select a baud rate")
             return
 
-        if self.connection_manager.connect_to_uav(ip_address, int(baud_rate)):
+        config_path = config_path = r"C:\Users\maria\UAV project\UAV_AAST_2025\files\data.json"
+
+        if self.connection_manager.connect_to_uav(ip_address, config_path):
             self.status_label.setText("Connected")
             self.status_label.setStyleSheet("color: green")
             self.connect_btn.setEnabled(False)
+            self.disconnect_btn.setEnabled(True)
             self.ip_input.setEnabled(False)
             self.baud_combo.setEnabled(False)
             QMessageBox.information(self, "Success", "Successfully connected to UAV")
@@ -99,3 +102,15 @@ class HomePage(QWidget):
             self.status_label.setText("Connection Failed")
             self.status_label.setStyleSheet("color: red")
             QMessageBox.warning(self, "Error", "Failed to connect to UAV")
+
+    def handle_disconnection(self):
+        if self.connection_manager.disconnect_from_uav():
+            self.status_label.setText("Disconnected")
+            self.status_label.setStyleSheet("color: red")
+            self.connect_btn.setEnabled(True)
+            self.disconnect_btn.setEnabled(False)
+            self.ip_input.setEnabled(True)
+            self.baud_combo.setEnabled(True)
+            QMessageBox.information(self, "Disconnected", "Disconnected from UAV")
+        else:
+            QMessageBox.warning(self, "Error", "Failed to disconnect from UAV")

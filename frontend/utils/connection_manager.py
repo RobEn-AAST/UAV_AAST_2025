@@ -1,5 +1,7 @@
 from pymavlink import mavutil
 from backend.modules.Uav import Uav
+import serial.tools.list_ports
+
 
 class ConnectionManager:
     _instance = None
@@ -40,3 +42,9 @@ class ConnectionManager:
 
     def is_connected(self):
         return self.uav is not None
+    def get_available_ports(self):
+        ports = serial.tools.list_ports.comports()
+        return [port.device for port in ports]
+
+    def get_available_baud_rates(self):
+        return ["9600", "19200", "38400", "57600", "115200"]

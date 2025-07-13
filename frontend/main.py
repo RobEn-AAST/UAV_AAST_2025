@@ -9,9 +9,13 @@ from PyQt6.QtCore import QTimer
 # Add the parent directory to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Now import using relative paths or adjust the imports
-from pages import HomePage, ReadingPage, MissionsPage, ParametersPage, CameraPage
+# Import custom pages
+from pages import HomePage, ReadingPage, MissionsPage, ParametersPage, CameraPage, AutoConnectionPage
 
+# Handle Ctrl+C (SIGINT)
+def signal_handler(sig, frame):
+    print("\nSignal received, exiting...")
+    sys.exit(0)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -45,10 +49,10 @@ def signal_handler(signum, frame):
     """Handle Ctrl+C gracefully"""
     print("\nClosing application...")
     QApplication.quit()
+        self.tab_widget.addTab(AutoConnectionPage(), "GCS Setup")
 
 
 def main():
-    # Set up signal handler for Ctrl+C
     signal.signal(signal.SIGINT, signal_handler)
 
     app = QApplication(sys.argv)

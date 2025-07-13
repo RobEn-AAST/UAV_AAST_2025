@@ -1,7 +1,6 @@
 import sys
 import os
 import signal
-import os
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QTabWidget
 from PyQt6.QtGui import QFont, QIcon
 from PyQt6.QtCore import QTimer
@@ -12,10 +11,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Import custom pages
 from pages import HomePage, ReadingPage, MissionsPage, ParametersPage, CameraPage, AutoConnectionPage
 
-# Handle Ctrl+C (SIGINT)
-def signal_handler(sig, frame):
-    print("\nSignal received, exiting...")
-    sys.exit(0)
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -44,32 +39,33 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(ParametersPage(), "Parameters")
         self.tab_widget.addTab(CameraPage(), "Camera")
 
-
-def signal_handler(signum, frame):
-    """Handle Ctrl+C gracefully"""
-    print("\nClosing application...")
-    QApplication.quit()
+    def handle_ctrl_c(self):
+        """Gracefully handle Ctrl+C from terminal"""
+        print("\nSignal received, closing...")
         self.tab_widget.addTab(AutoConnectionPage(), "GCS Setup")
+        QApplication.quit()
 
 
 def main():
-    signal.signal(signal.SIGINT, signal_handler)
-
     app = QApplication(sys.argv)
     app.setFont(QFont('Arial', 10))
 
-    # Set the *global* app icon too
+    # Set global app icon
     basedir = os.path.dirname(__file__)
-    icon_path = os.path.join(basedir, "..", "file", "SKYNAV ICON BLUE.png")
+    icon_path = os.path.join(basedir, "..", "files", "SKYNAV ICON BLUE.png")
     app.setWindowIcon(QIcon(icon_path))
 
-    # Create timer to allow Python to process system signals
+    # Allow Python signal handling while app runs
     timer = QTimer()
     timer.timeout.connect(lambda: None)
     timer.start(100)
 
     window = MainWindow()
     window.show()
+
+    # Ctrl+C signal handler now calls window method
+    signal.signal(signal.SIGINT, lambda sig, frame: window.handle_ctrl_c())
+
     sys.exit(app.exec())
 
 

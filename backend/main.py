@@ -1,16 +1,23 @@
-from modules.utils import apply_obs_avoidance
+import sys
+import os
 import json
 from sys import platform
-from os import path
-from modules.missions import mission1, mission2
-from modules.Uav import Uav
-from modules.survey import camera_modules
-from modules.entries import uav_connect,choose_mission,config_choose,return_wp_list
+
+# Make sure project root (UAV_AAST_2025) is in sys.path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, project_root)
+
+from backend.modules.utils import apply_obs_avoidance
+from backend.modules.missions import mission1, mission2
+from backend.modules.Uav import Uav
+from backend.modules.survey import camera_modules
+from backend.modules.entries import uav_connect, choose_mission, config_choose, return_wp_list
+from frontend.utils import autoconnect
 if __name__ == "__main__":
 
-    filepath = (__file__).replace(path.basename(__file__), '')
+    filepath = os.path.dirname(__file__)
 
-    config_path = filepath + "..\\files\\data.json"
+    config_path = filepath + "\\..\\files\\data.json"
     if platform == "linux" or platform == "linux2":
         config_path = filepath + "../files/data.json"
 
@@ -22,7 +29,6 @@ if __name__ == "__main__":
 
     config_choose(Json_data)
     mission_index = int(choose_mission())
-    
     wp_list,fence_list,obs_list,payload_pos,survey_grid=return_wp_list(Json_data['waypoints_file_csv']
                                                                        ,Json_data['fence_file_csv']
                                                                        ,Json_data['obs_csv']
@@ -70,3 +76,5 @@ if __name__ == "__main__":
         
     else:
         raise ValueError(f"Invalid choice: {mission_index}. Please select 1 or 2.")
+    
+    autoconnect.start_mavproxy(connection_string)

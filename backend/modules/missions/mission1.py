@@ -1,7 +1,7 @@
-from modules.utils import calc_drop_loc, get_bearing_2_points, new_waypoint
-from modules.Uav import Uav
-from modules.survey import generateSurveyFromList, Camera
-from modules.path_finder import get_optimum_path, calc_path_cost
+from backend.modules.utils import calc_drop_loc, get_bearing_2_points, new_waypoint
+from backend.modules.Uav import Uav
+from backend.modules.survey import generateSurveyFromList, Camera
+from backend.modules.path_finder import get_optimum_path, calc_path_cost
 
 
 def mission1(

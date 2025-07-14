@@ -1,175 +1,146 @@
-import os
+import socket
 import subprocess
-from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
-    QComboBox, QPushButton, QTextEdit
-)
-from PyQt6.QtGui import QFont, QTextCursor
-from PyQt6.QtCore import Qt
+import ipaddress
+import platform
+import sys
+import importlib.util
+import time
+import signal
+from argparse import ArgumentParser
 
-from utils.connection_manager import ConnectionManager
+def get_local_ip():
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(('10.255.255.255', 1))
+            return s.getsockname()[0]
+    except Exception:
+        try:
+            return socket.gethostbyname(socket.gethostname())
+        except Exception:
+            return '127.0.0.1'
 
-
-class Terminal(QTextEdit):
-    def __init__(self):
-        super().__init__()
-        self.setReadOnly(True)
-        self.setFont(QFont("Consolas", 12))
-        self.setStyleSheet("background-color: black; color: lime;")
-        self.setCursorWidth(2)
-
-    def append_text(self, text: str):
-        self.moveCursor(QTextCursor.MoveOperation.End)
-        self.insertPlainText(text + "\n")
-        self.moveCursor(QTextCursor.MoveOperation.End)
-        self.ensureCursorVisible()
-
-
-class AutoConnectionPage(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.connection_manager = ConnectionManager.get_instance()
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        self.script_path = os.path.join(project_root, "utils", "autoconnect.py")
-        self.process = None
-        self.init_ui()
-
-    def init_ui(self):
-        main_layout = QVBoxLayout(self)
-
-        # Header label
-        title = QLabel("Ground Control Station Setup")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title.setStyleSheet("font-size: 24px; font-weight: bold; color: grey; margin-bottom: 15px;")
-        main_layout.addWidget(title)
-
-        # Communication type section with Scan button on the right
-        top_layout = QHBoxLayout()
-        comm_label = QLabel("Communication Type:")
-        self.comm_combo = QComboBox()
-        self.comm_combo.addItems(["Serial", "UDP"])
-        self.comm_combo.setCurrentText("UDP")  # UDP as default
-        self.comm_combo.currentTextChanged.connect(self.on_comm_type_changed)
-
-        top_layout.addWidget(comm_label)
-        top_layout.addWidget(self.comm_combo)
-        top_layout.addStretch()
-
-        # Scan button with styling
-        self.scan_btn = QPushButton("Scan for IPs")
-        self.scan_btn.setFixedWidth(140)
-        self.scan_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #007bff;
-                color: white;
-                font-weight: bold;
-                padding: 10px;
-                border-radius: 6px;
-                font-size: 14px;
-            }
-            QPushButton:hover {
-                background-color: #0056b3;
-            }
-        """)
-        self.scan_btn.clicked.connect(self.run_scan_script)
-
-        top_layout.addWidget(self.scan_btn)
-        main_layout.addLayout(top_layout)
-
-        # Serial options container below
-        self.serial_options_layout = QHBoxLayout()
-
-        port_label = QLabel("Port:")
-        self.port_combo = QComboBox()
-        self.port_combo.setMinimumWidth(120)
-        self.serial_options_layout.addWidget(port_label)
-        self.serial_options_layout.addWidget(self.port_combo)
-
-        baud_label = QLabel("Baud Rate:")
-        self.baud_combo = QComboBox()
-        self.baud_combo.setMinimumWidth(120)
-        self.serial_options_layout.addWidget(baud_label)
-        self.serial_options_layout.addWidget(self.baud_combo)
-
-        self.serial_options_layout.addStretch()
-        main_layout.addLayout(self.serial_options_layout)
-
-        main_layout.addSpacing(20)  # space before terminal
-
-        # Terminal widget
-        self.terminal = Terminal()
-        main_layout.addWidget(self.terminal, stretch=1)
-
-        # Initialize combos
-        self.load_ports(self.comm_combo.currentText())
-        self.load_baud_rates()
-        self.on_comm_type_changed(self.comm_combo.currentText())
-
-
-    def load_ports(self, comm_type):
-        self.port_combo.clear()
-        cm = self.connection_manager
-        if comm_type == "Serial":
-            ports = cm.get_available_ports()
-            self.port_combo.addItems(ports)
-        elif comm_type == "UDP":
-            self.port_combo.addItems(["14550", "14551", "14552"])
-
-    def load_baud_rates(self):
-        cm = self.connection_manager
-        rates = cm.get_available_baud_rates()
-        self.baud_combo.clear()
-        self.baud_combo.addItems(rates)
-
-    def on_comm_type_changed(self, comm_type):
-        self.load_ports(comm_type)
-
-        if comm_type == "Serial":
-            for i in range(self.serial_options_layout.count()):
-                widget = self.serial_options_layout.itemAt(i).widget()
-                if widget:
-                    widget.setVisible(True)
-        elif comm_type == "UDP":
-            from PyQt6.QtWidgets import QLabel
-            for i in range(self.serial_options_layout.count()):
-                widget = self.serial_options_layout.itemAt(i).widget()
-                if widget:
-                    if widget == self.port_combo or (isinstance(widget, QLabel) and widget.text() == "Port:"):
-                        widget.setVisible(True)
-                    elif widget == self.baud_combo or (isinstance(widget, QLabel) and widget.text() == "Baud Rate:"):
-                        widget.setVisible(False)
-                    else:
-                        widget.setVisible(True)
-
-    def log_message(self, message: str):
-        self.terminal.append_text(message)
-
-    def run_scan_script(self):
-        import threading
-        if self.process is not None:
-            self.log_message("Scan already running...")
-            return
-
-        if not os.path.exists(self.script_path):
-            self.log_message(f"Script not found: {self.script_path}")
-            return
-
-        self.process = subprocess.Popen(
-            ["python", self.script_path],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            universal_newlines=True,
+def ping_host(ip, timeout=1):
+    param = '-n' if platform.system().lower() == 'windows' else '-c'
+    timeout_param = '-w' if platform.system().lower() == 'windows' else '-W'
+    try:
+        result = subprocess.run(
+            ['ping', param, '1', timeout_param, str(timeout), ip],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout + 0.5
         )
-        self.log_message(f"Started scan script: {self.script_path}")
+        return result.returncode == 0
+    except Exception:
+        return False
 
-        def read_output():
-            for line in self.process.stdout:
-                self.log_message(line.rstrip())
-            self.process.stdout.close()
-            self.process.wait()
-            self.log_message("Scan script finished.")
-            self.process = None
+def scan_network(subnet, timeout=1, scan_timeout=30):
+    active_ips = []
+    network = ipaddress.IPv4Network(subnet, strict=False)
+    local_ip = get_local_ip()
 
-        threading.Thread(target=read_output, daemon=True).start()
+    print(f"Scanning subnet {subnet} for active hosts...", flush=True)
+    start_time = time.time()
+
+    for ip in network.hosts():
+        ip = str(ip)
+        if ip == local_ip or ip.endswith('.0') or ip.endswith('.255'):
+            continue
+
+        if time.time() - start_time > scan_timeout:
+            print("Scan timeout reached.", flush=True)
+            break
+
+        if ping_host(ip, timeout=timeout):
+            print(f"Host alive: {ip}", flush=True)
+            active_ips.append(ip)
+
+    return active_ips
+
+def run_mavproxy(target_ips, base_port=14550, master_port=None):
+    try:
+        import MAVProxy
+        mavproxy_path = importlib.util.find_spec('MAVProxy').origin
+    except ImportError:
+        print("Error: MAVProxy is not installed.", flush=True)
+        print("Install with: pip install MAVProxy", flush=True)
+        sys.exit(1)
+
+    if master_port is None:
+        master_port = base_port
+
+    base_cmd = [
+        sys.executable,
+        mavproxy_path,
+        f'--master=udp:0.0.0.0:{master_port}',
+        f'--out=udpbcast:0.0.0.0:{base_port}',  # Broadcast
+    ]
+
+    for ip in target_ips:
+        base_cmd.append(f'--out=udp:{ip}:{base_port}')
+
+    print("\nRunning MAVProxy with command:", ' '.join(base_cmd), flush=True)
+
+    try:
+        proc = subprocess.Popen(base_cmd)
+        print(f"MAVProxy started (PID: {proc.pid})", flush=True)
+        return proc
+    except Exception as e:
+        print(f"Failed to start MAVProxy: {e}", flush=True)
+        sys.exit(1)
+
+def parse_args():
+    parser = ArgumentParser(description='MAVProxy launcher with automatic network scanning')
+    parser.add_argument('--port', type=int, default=14550, help='UDP port (default: 14550)')
+    parser.add_argument('--master-port', type=int, help='Separate master port (default: same as port)')
+    parser.add_argument('--scan-timeout', type=int, default=30, help='Scan timeout in seconds (default: 30)')
+    parser.add_argument('--subnet', type=str, help='Subnet to scan (default: auto-detect from local IP)')
+    return parser.parse_args()
+
+# ✅ This global will be used in signal handler
+mavproxy_proc = None
+
+def handle_termination(signum, frame):
+    print("\nSignal received, shutting down MAVProxy...", flush=True)
+    global mavproxy_proc
+    if mavproxy_proc is not None:
+        mavproxy_proc.terminate()
+        try:
+            mavproxy_proc.wait(timeout=3)
+            print("MAVProxy terminated cleanly.", flush=True)
+        except subprocess.TimeoutExpired:
+            mavproxy_proc.kill()
+            print("MAVProxy force killed.", flush=True)
+    sys.exit(0)
+
+if __name__ == "__main__":
+    # ✅ Register signal handler to stop MAVProxy when GUI calls .terminate()
+    signal.signal(signal.SIGTERM, handle_termination)
+
+    args = parse_args()
+    try:
+        local_ip = get_local_ip()
+        subnet = args.subnet if args.subnet else '.'.join(local_ip.split('.')[:3]) + '.0/24'
+
+        print(f"Local IP: {local_ip}", flush=True)
+        print(f"Using subnet: {subnet}", flush=True)
+
+        active_hosts = scan_network(subnet, scan_timeout=args.scan_timeout)
+
+        if not active_hosts:
+            print("No active hosts found in subnet.", flush=True)
+        else:
+            print(f"Active hosts found: {active_hosts}", flush=True)
+
+        if local_ip not in active_hosts:
+            active_hosts.append(local_ip)
+
+        # ✅ Assign the MAVProxy process globally so we can kill it on SIGTERM
+        mavproxy_proc = run_mavproxy(active_hosts, base_port=args.port, master_port=args.master_port)
+
+        # Wait forever or until killed
+        while True:
+            time.sleep(1)
+
+    except Exception as e:
+        print(f"Error: {e}", flush=True)
+        sys.exit(1)

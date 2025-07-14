@@ -2,7 +2,6 @@ import json
 import os
 import sys
 from datetime import datetime
-
 from PyQt6.QtCore import pyqtSignal, Qt, QThread, QObject
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton, QTextEdit,

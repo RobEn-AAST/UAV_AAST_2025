@@ -20,13 +20,11 @@ class ParametersPage(QWidget):
         # Serial Port and Baudrate Dropdowns
         serial_layout = QHBoxLayout()
 
-        # Port Dropdown
         self.port_dropdown = QComboBox()
         self.port_dropdown.setFixedHeight(30)
         self.refresh_ports()
         serial_layout.addWidget(self.port_dropdown)
 
-        # Baudrate Dropdown
         self.baud_dropdown = QComboBox()
         self.baud_dropdown.setFixedHeight(30)
         self.baud_dropdown.addItems(["57600", "115200"])
@@ -35,16 +33,13 @@ class ParametersPage(QWidget):
 
         layout.addLayout(serial_layout)
 
-        # Refresh Ports Button
         self.refresh_button = QPushButton("Refresh Ports")
         self.refresh_button.setFixedHeight(30)
         self.refresh_button.clicked.connect(self.refresh_ports)
         layout.addWidget(self.refresh_button)
 
-        # Load Button
         self.load_button = QPushButton("Load Parameters (YAML)")
         self.load_button.setFixedHeight(40)
-        self.load_button.setStyleSheet("font-size: 16px;")
         self.load_button.clicked.connect(self.load_yaml)
         layout.addWidget(self.load_button)
 
@@ -57,29 +52,96 @@ class ParametersPage(QWidget):
         self.param_table.itemChanged.connect(self.manual_param_edit)
         layout.addWidget(self.param_table)
 
-        # Buttons Layout
+        # Buttons
         button_layout = QHBoxLayout()
 
         self.clear_button = QPushButton("Clear Table")
         self.clear_button.setFixedHeight(40)
-        self.clear_button.setStyleSheet("font-size: 16px;")
         self.clear_button.clicked.connect(self.clear_table)
         button_layout.addWidget(self.clear_button)
 
         self.upload_button = QPushButton("Upload to UAV")
         self.upload_button.setFixedHeight(40)
-        self.upload_button.setStyleSheet("font-size: 16px;")
         self.upload_button.clicked.connect(self.confirm_upload)
         button_layout.addWidget(self.upload_button)
 
         layout.addLayout(button_layout)
 
-        # Status Log
         self.status_log = QTextEdit()
         self.status_log.setReadOnly(True)
         layout.addWidget(self.status_log)
 
         self.setLayout(layout)
+        self.apply_styles()
+        self.init_table_items()
+
+    def apply_styles(self):
+        # Button Styles with consistent non-white hover
+        self.load_button.setStyleSheet("""
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: #5dade2;
+            }
+        """)
+        self.refresh_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2ecc71;
+                color: white;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #58d68d;
+            }
+        """)
+        self.upload_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2ecc71;
+                color: white;
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: #58d68d;
+            }
+        """)
+        self.clear_button.setStyleSheet("""
+            QPushButton {
+                background-color: #e74c3c;
+                color: white;
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: #ec7063;
+            }
+        """)
+
+        # Table Header
+        self.param_table.setStyleSheet("""
+            QHeaderView::section {
+                background-color: #3498db;
+                color: white;
+                padding: 4px;
+                border: 1px solid white;
+            }
+            QTableView::item:selected {
+                background: none;
+            }
+            QTableWidget::item {
+                border-right: 1px solid #ddd;
+                border-bottom: 1px solid #ddd;
+            }
+        """)
+
+    def init_table_items(self):
+        for row in range(self.param_table.rowCount()):
+            for col in range(self.param_table.columnCount()):
+                item = QTableWidgetItem("")
+                if col in [1, 3]:
+                    item.setBackground(Qt.GlobalColor.lightGray)
+                self.param_table.setItem(row, col, item)
 
     def refresh_ports(self):
         self.port_dropdown.clear()
@@ -113,9 +175,12 @@ class ParametersPage(QWidget):
                 row = i // 2
                 col_offset = (i % 2) * 2
                 self.param_table.setItem(row, col_offset, QTableWidgetItem(param_list[i][0]))
-                self.param_table.setItem(row, col_offset + 1, QTableWidgetItem(str(param_list[i][1])))
+                value_item = QTableWidgetItem(str(param_list[i][1]))
+                value_item.setBackground(Qt.GlobalColor.lightGray)
+                self.param_table.setItem(row, col_offset + 1, value_item)
                 self.parameters[param_list[i][0]] = param_list[i][1]
 
+            self.add_middle_separator()
             self.log_message(f"Loaded {len(param_list)} parameters successfully.")
 
         except Exception as e:
@@ -124,10 +189,31 @@ class ParametersPage(QWidget):
     def clear_table(self):
         for row in range(self.param_table.rowCount()):
             for col in [1, 3]:
-                if self.param_table.item(row, col):
-                    self.param_table.setItem(row, col, QTableWidgetItem(""))
+                item = QTableWidgetItem("")
+                item.setBackground(Qt.GlobalColor.lightGray)
+                self.param_table.setItem(row, col, item)
+            for col in [0, 2]:
+                self.param_table.setItem(row, col, QTableWidgetItem(""))
         self.parameters.clear()
+        self.add_middle_separator()
         self.log_message("Cleared all parameter values.")
+
+    def add_middle_separator(self):
+        # Ensure the middle vertical separator is thicker
+        header = self.param_table.horizontalHeader()
+        for i in range(self.param_table.columnCount() - 1):
+            if i == 1:
+                header.setStyleSheet("""
+                    QHeaderView::section {
+                        border-right: 3px solid white;
+                    }
+                """)
+            else:
+                header.setStyleSheet("""
+                    QHeaderView::section {
+                        border-right: 1px solid white;
+                    }
+                """)
 
     def manual_param_edit(self, item):
         row = item.row()
@@ -141,6 +227,9 @@ class ParametersPage(QWidget):
             param_value = item.text().strip()
             param_name_item = self.param_table.item(row, col - 1)
             param_name = param_name_item.text().strip() if param_name_item else ""
+
+        if col in [1, 3]:
+            item.setBackground(Qt.GlobalColor.lightGray)
 
         if param_name:
             self.parameters[param_name] = param_value

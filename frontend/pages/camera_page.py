@@ -3,8 +3,8 @@ from PyQt6.QtWidgets import (QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QWid
                             QPushButton, QApplication, QMessageBox)
 from PyQt6.QtGui import QImage, QPixmap
 from PyQt6.QtCore import QTimer, Qt, QSize
-from utils.connection_manager import ConnectionManager
-from mav_utils.send_message import send_message
+from frontend.utils.connection_manager import ConnectionManager
+from frontend.mav_utils.send_message import send_message
 import os
 
 class CameraPage(QWidget):

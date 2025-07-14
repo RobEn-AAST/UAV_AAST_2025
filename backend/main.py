@@ -58,7 +58,6 @@ if __name__ == "__main__":
             camera=camera,
             uav=uav,
         )
-        uav.end_mission_logic()
         
     elif(mission_index == 2):
 
@@ -72,9 +71,9 @@ if __name__ == "__main__":
             uav=uav,
             repeat_count=repeat_count
             )
-        uav.end_mission_logic()
         
     else:
         raise ValueError(f"Invalid choice: {mission_index}. Please select 1 or 2.")
     
+    uav.end_mission_logic()
     autoconnect.start_mavproxy(connection_string)

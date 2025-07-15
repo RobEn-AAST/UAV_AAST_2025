@@ -1,4 +1,4 @@
-{    
+{
     "waypoints_file_waypoint": "C:\\Users\\Karim Amr\\Documents\\RobEn\\UAV_AAST_2025\\UAV_AAST_2025\\files\\mission1.waypoints",
     "waypoints_file_csv": "C:\\Users\\Karim Amr\\Documents\\RobEn\\UAV_AAST_2025\\UAV_AAST_2025\\files\\waypoints.csv",
     "fence_file_waypoint": "C:\\Users\\Karim Amr\\Documents\\RobEn\\UAV_AAST_2025\\UAV_AAST_2025\\files\\fence.waypoints",
@@ -17,11 +17,9 @@
     "take_off_angle": 15,
     "do_jump_repeat_count": 8,
     "ip_range": "192.168.1.1/24",
-    "Local_connection_string":"172.17.176.1:14550",
-    "sim_connection_string": "172.17.176.1:14550",
-    "telem_link": "com8",
+    "sim_connection_string": "172.26.16.1:14550",
+    "telem_link": "com5",
     "raspberry_pi_connection_string": "coco",
-    "telemetry sys": "com8",
     "aircraftAltitude": 80,
     "aircraftVelocity": 22,
     "windSpeed": 0,
@@ -35,13 +33,13 @@
     "image_width": 6000,
     "focal_length_max": 0.05,
     "focal_length_min": 0.016,
-    "pdf_mission": "../../../files/mission.pdf",
-    "docx_file": "/home/mesbah/mesbah/roben/codes/UAV2025/UAV_AAST_2025/backend/modules/entries/pdf_reader_files/Output/new_converted.docx",
+    "pdf_mission": "C:\\Users\\Karim Amr\\Documents\\RobEn\\UAV_AAST_2025\\UAV_AAST_2025\\files\\mission.pdf",
+    "docx_file": "C:\\Users\\Karim Amr\\Documents\\RobEn\\UAV_AAST_2025\\UAV_AAST_2025\\backend\\modules\\entries\\pdf_reader_files\\Output\\new_converted.docx",
     "start_land_dist": 100,
     "loiter_target_alt": 20,
     "loiter_rad": 50,
     "drop_close_delay": 2,
     "obs_safe_dist": 5,
     "bank_angle": 40,
-    "obs_raduies":5
+    "obs_raduies": 5
 }

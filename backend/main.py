@@ -53,7 +53,7 @@ def main():
         config_data['payload_file_csv'],
         config_data['survey_csv']
     )
-    
+    fence_list.append(fence_list[0].copy())
     # Process data
     payload_pos[0].pop()
     for obs in obs_list:

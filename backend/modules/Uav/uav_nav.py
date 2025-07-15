@@ -88,6 +88,7 @@ class UavNav:
         """Create navigation waypoint."""
         return self._create_waypoint(
             command=mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
+            param2=25,
             lat=lat,
             lon=lon,
             alt=alt,

@@ -32,12 +32,15 @@ if __name__ == "__main__":
     # this is how we run a mission
     wp_list = apply_obs_avoidance(wp_list, obs_list, uav.config_data["obs_safe_dist"])
     uav.before_mission_logic(fence_list)
-    mission1(
-        original_mission=wp_list,
-        payload_pos=payload_pos[0],
-        fence_list=fence_list,
-        survey_grid=survey_grid,
-        camera=camera,
-        uav=uav,
-    )
-    uav.end_mission_logic()
+    if mission_index == '1' :
+        mission1(
+            original_mission=wp_list,
+            payload_pos=payload_pos[0],
+            fence_list=fence_list,
+            survey_grid=survey_grid,
+            camera=camera,
+            uav=uav,
+        )
+        uav.end_mission_logic()
+    if mission_index == '2':
+        mission2()

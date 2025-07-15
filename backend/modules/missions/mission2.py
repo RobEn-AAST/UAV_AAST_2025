@@ -1,3 +1,3 @@
 
-def mission2(connection_type) :
+def mission2() :
     pass

@@ -148,7 +148,7 @@ class UavMessages:
                 target_system=self.master.target_system,
                 target_component=self.master.target_component,
                 param_id=FENCE_ACTION,
-                param_value=dialect.FENCE_ACTION_NONE,
+                param_value=0,
                 param_type=dialect.MAV_PARAM_TYPE_REAL32,
             )
 

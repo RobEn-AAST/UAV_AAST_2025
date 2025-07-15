@@ -43,6 +43,8 @@ some issues to point:
 
     auto continue was set to false for some missions btw
 
-
-
-    coco wawa
+    todoooooo:
+    add mission 2 
+    optimize survey if possible 
+    add pdf reader
+    add raduis acc

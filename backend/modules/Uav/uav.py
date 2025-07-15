@@ -1,6 +1,6 @@
 import json
 from pymavlink import mavutil, mavwp
-from modules.utils import new_waypoint
+from ..utils import new_waypoint
 from .uav_messages import UavMessages
 from .uav_nav import UavNav
 
@@ -31,6 +31,21 @@ class Uav:
         print("Connection established with UAV")
 
         return master
+    
+    def disconnect(self):
+        if self.master:
+            try:
+                self.master.close()
+                self.master = None
+                print("UAV connection closed.")
+                return True
+            except Exception as e:
+                print(f"Error closing UAV connection: {e}")
+                return False
+        else:
+            print("No UAV connection to close.")
+            return False
+
 
     def takeoff_sequence(self):
         self.wp_loader.insert(1, self.nav.takeoff_wp(self.home_lat, self.home_long))
@@ -66,6 +81,26 @@ class Uav:
         for i in range(len(wp_list)):
             lat, long, alt = wp_list[i]
             self.wp_loader.add(self.nav.nav_waypoint(lat, long, alt))
+            
+    def add_mission_item(self, command, lat=None, lon=None, alt=None, param1=None, param2=None):
+        """
+        Add a single mission item with optional command parameters.
+        For NAV_WAYPOINT command, lat, lon, alt are required.
+        For DO_JUMP command, use param1 (target sequence), param2 (repeat count).
+        """
+        if command == mavutil.mavlink.MAV_CMD_NAV_WAYPOINT:
+            if lat is None or lon is None or alt is None:
+                raise ValueError("lat, lon, alt must be set for NAV_WAYPOINT")
+            wp = self.nav.nav_waypoint(lat, lon, alt)
+        elif command == mavutil.mavlink.MAV_CMD_DO_JUMP:
+            if param1 is None or param2 is None:
+                raise ValueError("param1 and param2 must be set for DO_JUMP")
+            wp = self.nav.do_jump_wp(param1, param2)
+        else:
+            raise NotImplementedError(f"Command {command} is not implemented")
+
+        self.wp_loader.add(wp)
+
 
     def add_home_wp(self):
         msg = self.master.recv_match(type="GLOBAL_POSITION_INT", blocking=True)

@@ -1,6 +1,6 @@
-from modules.utils import get_bearing_2_points, new_waypoint, get_dist_2_points 
-from .rect_points import RectPoints
-from modules.config import MissionConfig
+from ..utils import get_bearing_2_points, new_waypoint, get_dist_2_points
+from ..survey.rect_points import RectPoints
+from ..config import MissionConfig
 
 def generateSurveyFromList(search_list: list[list[float]], spacing, planeLocation) -> list[list[float]]:
     if len(search_list) != 4:

@@ -1,1 +1,1 @@
-from .uav import Uav
+from .uav import Uav  # noqa: F401

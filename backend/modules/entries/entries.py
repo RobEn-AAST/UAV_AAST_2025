@@ -60,15 +60,11 @@ def config_choose(My_data):
         convert_pdf(filepath + My_data['pdf_mission'])
 
 
-def choose_mission():
+def choose_mission(mission_index=None):
+    if mission_index is not None:
+        return mission_index
+    return int(input("Enter mission number: "))
 
-    print("\nChoose the mission you want :")
-    print("enter '1' for mission 1 'payload mission' ")
-    print("enter '2' for mission 2 'survey mission' ")
-
-    the_mission_index = input("Enter mission number: ")
-
-    return the_mission_index
 
 
 

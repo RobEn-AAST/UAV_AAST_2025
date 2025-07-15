@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QMessageBox, QComboBox
-from utils.connection_manager import ConnectionManager
+from frontend.utils.connection_manager import ConnectionManager
+import os
 
 class HomePage(QWidget):
     def __init__(self):
@@ -77,31 +78,35 @@ class HomePage(QWidget):
             self.ip_input.setText(f"/dev/{port}" if port.startswith("tty") else port)
 
     def handle_connection(self):
-        ip_address = self.ip_input.text().strip()
-        baud_rate = self.baud_combo.currentText()
+        try:
+            ip_address = self.ip_input.text().strip()
+            baud_rate = self.baud_combo.currentText()
 
-        if not ip_address:
-            QMessageBox.warning(self, "Error", "Please enter an IP address or port")
-            return
+            if not ip_address:
+                QMessageBox.warning(self, "Error", "Please enter an IP address or port")
+                return
 
-        if baud_rate == "Select Baud Rate...":
-            QMessageBox.warning(self, "Error", "Please select a baud rate")
-            return
+            if baud_rate == "Select Baud Rate...":
+                QMessageBox.warning(self, "Error", "Please select a baud rate")
+                return
 
-        config_path = config_path = r"C:\Users\maria\UAV project\UAV_AAST_2025\files\data.json"
+            # Use relative path
+            config_path = os.path.join(os.path.dirname(__file__), "..", "..", "files", "data.json")
 
-        if self.connection_manager.connect_to_uav(ip_address, config_path):
-            self.status_label.setText("Connected")
-            self.status_label.setStyleSheet("color: green")
-            self.connect_btn.setEnabled(False)
-            self.disconnect_btn.setEnabled(True)
-            self.ip_input.setEnabled(False)
-            self.baud_combo.setEnabled(False)
-            QMessageBox.information(self, "Success", "Successfully connected to UAV")
-        else:
-            self.status_label.setText("Connection Failed")
-            self.status_label.setStyleSheet("color: red")
-            QMessageBox.warning(self, "Error", "Failed to connect to UAV")
+            if self.connection_manager.connect_to_uav(ip_address, config_path):
+                self.status_label.setText("Connected")
+                self.status_label.setStyleSheet("color: green")
+                self.connect_btn.setEnabled(False)
+                self.disconnect_btn.setEnabled(True)
+                self.ip_input.setEnabled(False)
+                self.baud_combo.setEnabled(False)
+                QMessageBox.information(self, "Success", "Successfully connected to UAV")
+            else:
+                self.status_label.setText("Connection Failed")
+                self.status_label.setStyleSheet("color: red")
+                QMessageBox.warning(self, "Error", "Failed to connect to UAV")
+        except Exception as e:
+            QMessageBox.critical(self, "Exception", f"Error: {e}")
 
     def handle_disconnection(self):
         if self.connection_manager.disconnect_from_uav():

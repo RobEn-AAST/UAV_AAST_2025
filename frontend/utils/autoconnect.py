@@ -52,28 +52,29 @@ def start_mavproxy(master_connection, baudrate=115200):
         master_connection (str): --master connection string (e.g., "com5" or "udp:172.26.16.1:14550")
         baudrate (int): Serial baud rate (default: 115200)
     """
-    # MAVProxy executable (Windows/Linux compatible)
+    import platform
+
     mavproxy_cmd = "mavproxy.exe" if platform.system().lower() == "windows" else "mavproxy.py"
     
-    # Generate --out arguments for all target IPs plus localhost
     base_ip = "192.168.1."
-    target_ips = [f"{base_ip}{i}" for i in range(1, 16)]  # 192.168.1.1 to 192.168.1.15
-    target_ips.append("127.0.0.1")  # Always include localhost
+    target_ips = [f"{base_ip}{i}" for i in range(1, 16)]
+    target_ips.append("127.0.0.1")
     
-    # Build the full command
     command = [mavproxy_cmd]
     
-    # Add master connection (check if it's serial or UDP)
-    if ":" in master_connection:  # UDP connection
+    if ":" in master_connection:
         command.append(f"--master={master_connection}")
-    else:  # Serial connection
+    else:
         command.extend([f"--master={master_connection}", f"--baudrate={baudrate}"])
     
-    # Add output connections (including 127.0.0.1)
     command.extend([f"--out=udp:{ip}:14550" for ip in target_ips])
-    
-    # Launch in new terminal (Windows)
+
     if platform.system().lower() == "windows":
-        subprocess.Popen(['start', 'cmd', '/k'] + command, shell=True)
-    else:  # Linux/Mac
+        # Build the full PowerShell command string
+        full_command_str = " ".join(command)
+
+        subprocess.Popen([
+            "powershell", "-NoExit", "-Command", full_command_str
+        ])
+    else:
         subprocess.Popen(['x-terminal-emulator', '-e'] + command)

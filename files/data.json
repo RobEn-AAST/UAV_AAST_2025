@@ -18,7 +18,7 @@
     "do_jump_repeat_count": 8,
     "ip_range": "192.168.1.1/24",
     "Local_connection_string": "172.30.240.1:14550",
-    "sim_connection_string": "172.30.64.1:14550",
+    "sim_connection_string": "172.30.240.1:14550git",
     "telem_link": "com8",
     "raspberry_pi_connection_string": "coco",
     "aircraftAltitude": 80,

@@ -48,6 +48,16 @@ class UavNav:
             alt=self.config_data["take_off_alt"],
         )
 
+    def do_set_speed_wp(self, speed=10):
+        """Create a DO_SET_SPEED (MAV_CMD_DO_CHANGE_SPEED) waypoint before loiter"""
+        return self._create_waypoint(
+            command=mavutil.mavlink.MAV_CMD_DO_CHANGE_SPEED,
+            param1=0,    
+            param2=speed, 
+            param3=-1,  
+            param4=0
+        )
+
     def loiter_to_alt_wp(self, lat: float, lon: float):
         """Create loiter-to-altitude waypoint."""
         return self._create_waypoint(

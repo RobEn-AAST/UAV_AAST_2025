@@ -56,7 +56,8 @@ class Uav:
         loiter_lat, loiter_long = new_waypoint(
             self.home_lat, self.home_long, start_land_dist, self.init_bearing - 180
         )
-
+        
+        self.wp_loader.add(self.nav.do_set_speed_wp())
         self.wp_loader.add(self.nav.loiter_to_alt_wp(loiter_lat, loiter_long))
 
         land_lat, land_long = new_waypoint(

@@ -6,7 +6,8 @@ from os import path
 
 def uav_connect(My_data):
     print("choose the way of communication: ")
-    print("connection 1 is '172.26.16.1:14550' for local host")
+    print("connection 1 is '{}' for local host".format(My_data['Local_connection_string']))
+    # The connection string is the device's IPv4 address.
     print("connection 2 is for network sharing")
     print("connection 3 for telemetry system")
     connection_type = input("Enter connection number:  ")
@@ -56,8 +57,7 @@ def config_choose(My_data):
 
     elif data_type == "3":
 
-        filepath = (__file__).replace(path.basename(__file__), '')
-        convert_pdf(filepath + My_data['pdf_mission'])
+        convert_pdf(My_data['pdf_mission'], My_data['docx_file'])
 
 
 def choose_mission(mission_index=None):

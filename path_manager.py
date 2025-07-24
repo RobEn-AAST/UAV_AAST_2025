@@ -137,7 +137,7 @@ class PathManager:
             
             # Special files
             'pdf_mission': 'files/mission.pdf',
-            'docx_file': 'backend/modules/entries/pdf_reader_files/Output/new_converted.docx'
+            'docx_file': 'files/new_converted.docx'
         }
         
         # Update paths
@@ -164,7 +164,7 @@ class PathManager:
             "survey_csv": self.get_file_path("survey.csv"),
             "survey_waypoints": self.get_file_path("survey.waypoints"),
             "pdf_mission": self.get_file_path("mission.pdf"),
-            "docx_file": self.get_project_path("backend/modules/entries/pdf_reader_files/Output/new_converted.docx"),
+            "docx_file": self.get_project_path("new_converted.docx"),
             
             # Configuration parameters
             "home_lat": 29.8146013,
@@ -225,7 +225,7 @@ class PathManager:
         directories = [
             "files",
             "files/Output",
-            "backend/modules/entries/pdf_reader_files/Output",
+            "files",
             "frontend/utils/Output"
         ]
         

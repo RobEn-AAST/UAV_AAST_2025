@@ -191,7 +191,7 @@ def test_path_system():
         ("Backend directory", "backend"), 
         ("Frontend directory", "frontend"),
         ("Config file", "files/data.json"),
-        ("Output directory", "files/Output")
+        ("Output directory", "files")
     ]
     
     for name, relative_path in test_paths:

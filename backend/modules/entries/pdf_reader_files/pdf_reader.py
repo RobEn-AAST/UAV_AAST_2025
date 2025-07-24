@@ -18,13 +18,10 @@ def is_float(string):
     except ValueError:
         return False
 
-def convert_pdf(pdf):
-    filepath = (__file__).replace(path.basename(__file__), '')
-    output_path = filepath + "Output\\"
+def convert_pdf(pdf, docx_file):
+    output_path = docx_file.replace("new_converted.docx", "Output\\")
     if platform == "linux" or platform == "linux2":
-        filepath = (__file__).replace(path.basename(__file__), '')
-        output_path = filepath + "Output/"
-    docx_file = output_path + "new_converted.docx"
+        output_path = docx_file.replace("new_converted.docx", "Output/")
 
     # Converting a PDF to a .docx file.
     cv = Converter(pdf)

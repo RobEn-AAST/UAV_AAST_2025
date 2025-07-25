@@ -11,6 +11,7 @@ def mission1(
     survey_grid: list[list[float]],
     camera: Camera,
     uav: Uav,
+    fl
 ) -> bool:
     # 1. do original mission
     uav.add_mission_waypoints(original_mission)
@@ -19,10 +20,10 @@ def mission1(
     last_wp = original_mission[-1]
     before_last_wp = original_mission[-2]
     drop_offset = calc_drop_loc(
-        uav.config_data["aircraftAltitude"],
-        uav.config_data["aircraftVelocity"],
-        uav.config_data["windSpeed"],
-        uav.config_data["windBearing"],
+        uav.config_data['flight']["aircraftAltitude"],
+        uav.config_data['flight']["aircraftVelocity"],
+        uav.config_data['flight']["windSpeed"],
+        uav.config_data['flight']["windBearing"],
     )
 
     curr_plane_brng = get_bearing_2_points(
@@ -55,11 +56,11 @@ def mission1(
     drop_wp = new_waypoint(payload_pos[0], payload_pos[1], drop_offset, best_brng + 180)
 
     uav.add_mission_waypoints(
-        [[*pnt, uav.config_data['aircraftAltitude']] for pnt in best_path[-6:-1:1]]
+        [[*pnt, uav.config_data['flight']['aircraftAltitude']] for pnt in best_path[-6:-1:1]]
     )
-    uav.add_mission_waypoints([[*drop_wp, uav.config_data["survey_alt"]]])
+    uav.add_mission_waypoints([[*drop_wp, uav.config_data['flight']["survey_alt"]]])
 
-    uav.add_servo_dropping_wps()
+    uav.add_servo_dropping_wps(fl)
     payload_pos.append(int(100))
     uav.add_mission_waypoints([payload_pos])
     # 3. do the survey grid exploration

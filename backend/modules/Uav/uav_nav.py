@@ -42,10 +42,10 @@ class UavNav:
         """Create takeoff waypoint at specified home position."""
         return self._create_waypoint(
             command=mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
-            param1=self.config_data["take_off_angle"],
+            param1=self.config_data['flight']["take_off_angle"],
             lat=home_lat,
             lon=home_lon,
-            alt=self.config_data["take_off_alt"],
+            alt=self.config_data['flight']["take_off_alt"],
         )
 
     def do_set_speed_wp(self, speed=10):
@@ -62,10 +62,10 @@ class UavNav:
         """Create loiter-to-altitude waypoint."""
         return self._create_waypoint(
             command=mavutil.mavlink.MAV_CMD_NAV_LOITER_TO_ALT,
-            param2=self.config_data["loiter_rad"],
+            param2=self.config_data["flight"]["loiter_rad"],
             lat=lat,
             lon=lon,
-            alt=self.config_data["loiter_target_alt"],
+            alt=self.config_data["flight"]["loiter_target_alt"],
         )
 
     def land_wp(self, lat: float, lon: float):
@@ -77,14 +77,22 @@ class UavNav:
             alt=0,
         )
 
-    def servo_wp(self, is_open: bool):
-        """Create servo control waypoint."""
-        pwm_key = "PAYLOAD_OPEN_PWM_VALUE" if is_open else "PAYLOAD_CLOSE_PWM_VALUE"
+    def servo_wp(self, fl: str,is_open: bool):
+        """Create servo control waypoint based on selected flight controller (fl)."""
         
+        # Access the servo config dictionary for the given flight controller
+        servo_config = self.config_data.get("servo_pwm", {}).get(fl, {})
+
+        if not servo_config:
+            raise ValueError(f"Flight controller '{fl}' not found in config_data['servo_pwm'].")
+
+        pwm_value = servo_config["open"] if is_open else servo_config["close"]
+        servo_no = servo_config["servo_no"]
+
         return self._create_waypoint(
             command=mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
-            param1=self.config_data["payload_servo_no"],
-            param2=self.config_data[pwm_key],
+            param1=servo_no,
+            param2=pwm_value,
         )
 
     def delay_wp(self, delay: float):

@@ -51,7 +51,7 @@ class Uav:
         self.wp_loader.insert(1, self.nav.takeoff_wp(self.home_lat, self.home_long))
 
     def landingSequence(self) -> bool:
-        start_land_dist = self.config_data["start_land_dist"]
+        start_land_dist = self.config_data["flight"]["start_land_dist"]
 
         loiter_lat, loiter_long = new_waypoint(
             self.home_lat, self.home_long, start_land_dist, self.init_bearing - 180
@@ -65,13 +65,13 @@ class Uav:
         )
         self.wp_loader.add(self.nav.land_wp(land_lat, land_long))
 
-    def add_servo_dropping_wps(self):
-        self.wp_loader.add(self.nav.servo_wp(is_open=True))
+    def add_servo_dropping_wps(self,fl):
+        self.wp_loader.add(self.nav.servo_wp(fl,is_open=True))
 
-        delay_wp = self.nav.delay_wp(self.config_data["drop_close_delay"])
+        delay_wp = self.nav.delay_wp(self.config_data["flight"]["drop_close_delay"])
         self.wp_loader.add(delay_wp)
 
-        self.wp_loader.add(self.nav.servo_wp(is_open=False))
+        self.wp_loader.add(self.nav.servo_wp(fl,is_open=False))
 
     # extra logic idk
 
@@ -113,11 +113,12 @@ class Uav:
         self.wp_loader.add(self.nav.home_wp(self.home_lat, self.home_long))
 
     def before_mission_logic(self, fence_list: list[list[float]]):
-        self.messages.upload_fence(fence_list)
         self.messages.clear_mission()
         self.add_home_wp()
+        self.messages.upload_fence(fence_list,self.home_lat,self.home_long)
         self.takeoff_sequence()
 
     def end_mission_logic(self):
         self.landingSequence()
         self.messages.upload_mission()
+        self.master.close()

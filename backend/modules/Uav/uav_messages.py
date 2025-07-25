@@ -87,13 +87,13 @@ class UavMessages:
             print(f"Clear mission timeout: {str(e)}")
             return False
 
-    def upload_fence(self, fence_list: list[list[float]]):
+    def upload_fence(self, fence_list: list[list[float]],given_lat,given_long):
         """expected format: [[lat, long]]"""
         if len(fence_list) == 0:
             # todo add steps to skip fence aka parameters logic stuff
             return
 
-        lat, long = self.config_data["home_lat"], self.config_data["home_long"]
+        lat, long = given_lat,given_long
         fence_list.insert(0, [lat, long])
 
         FENCE_TOTAL = "FENCE_TOTAL".encode(encoding="utf-8")

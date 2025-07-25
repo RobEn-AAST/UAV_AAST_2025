@@ -54,6 +54,8 @@ def main():
         config_data['survey_csv']
     )
     fence_list.append(fence_list[0].copy())
+    print(id(fence_list[0]))
+    print(id(fence_list[4]))
     # Process data
     payload_pos[0].pop()
     for obs in obs_list:

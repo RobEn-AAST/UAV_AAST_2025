@@ -107,6 +107,7 @@ class PathManager:
             
             # Update all file paths in config to use smart paths
             config = self._update_config_paths(config)
+            
             return config
             
         except FileNotFoundError:
@@ -117,33 +118,23 @@ class PathManager:
             return self._create_default_config()
     
     def _update_config_paths(self, config: Dict) -> Dict:
-        """Update hardcoded paths in config to use smart paths."""
+        """Update nested paths in config to use full project paths."""
         
-        # Define path mappings
-        path_mappings = {
-            # Waypoint files
-            'waypoints_file_waypoint': 'files/mission1.waypoints',
-            'waypoints_file_csv': 'files/waypoints.csv',
-            'fence_file_waypoint': 'files/fence.waypoints', 
-            'fence_file_csv': 'files/fence.csv',
-            'payload_file_waypoint': 'files/payload.waypoints',
-            'payload_file_csv': 'files/payload.csv',
-            'network_ips_csv': 'files/network_ips.csv',
-            'obs_csv': 'files/obstacles.csv',
-            'obs_waypoints': 'files/obstacles.waypoints',
-            'wp_plus_obs_csv': 'files/wp_plus_obs.csv',
-            'survey_csv': 'files/survey.csv',
-            'survey_waypoints': 'files/survey.waypoints',
-            
-            # Special files
-            'pdf_mission': 'files/mission.pdf',
-            'docx_file': 'files/new_converted.docx'
-        }
+        if "paths" in config:
+            for key, relative_path in config["paths"].items():
+                config["paths"][key] = self.get_file_path(relative_path)
         
-        # Update paths
-        for key, relative_path in path_mappings.items():
+        # If config has top-level legacy path keys (for backward compatibility)
+        legacy_keys = [
+            'waypoints_file_waypoint', 'waypoints_file_csv', 'fence_file_waypoint',
+            'fence_file_csv', 'payload_file_waypoint', 'payload_file_csv',
+            'network_ips_csv', 'obs_csv', 'obs_waypoints', 'wp_plus_obs_csv',
+            'survey_csv', 'survey_waypoints', 'pdf_mission', 'docx_file'
+        ]
+        
+        for key in legacy_keys:
             if key in config:
-                config[key] = self.get_project_path(relative_path)
+                config[key] = self.get_file_path(config[key])
         
         return config
     

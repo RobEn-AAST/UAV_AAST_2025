@@ -46,12 +46,6 @@ def scan_network(subnet, timeout=1, scan_timeout=30):
     return active_ips
 
 def start_mavproxy(master_connection, baudrate=115200):
-    """
-    Start MAVProxy with UDP outputs for IP range 192.168.1.1-15 and localhost
-    Args:
-        master_connection (str): --master connection string (e.g., "com5" or "udp:172.26.16.1:14550")
-        baudrate (int): Serial baud rate (default: 115200)
-    """
     import platform
 
     mavproxy_cmd = "mavproxy.exe" if platform.system().lower() == "windows" else "mavproxy.py"
@@ -61,20 +55,16 @@ def start_mavproxy(master_connection, baudrate=115200):
     target_ips.append("127.0.0.1")
     
     command = [mavproxy_cmd]
-    
+
     if ":" in master_connection:
         command.append(f"--master={master_connection}")
     else:
         command.extend([f"--master={master_connection}", f"--baudrate={baudrate}"])
     
     command.extend([f"--out=udp:{ip}:14550" for ip in target_ips])
-
-    if platform.system().lower() == "windows":
-        # Build the full PowerShell command string
-        full_command_str = " ".join(command)
-
-        subprocess.Popen([
-            "powershell", "-NoExit", "-Command", full_command_str
-        ])
-    else:
-        subprocess.Popen(['x-terminal-emulator', '-e'] + command)
+    
+    # This will block and run MAVProxy in the current terminal
+    try:
+        subprocess.run(command)
+    except FileNotFoundError:
+        print("MAVProxy not found. Make sure it's installed and in your PATH.")

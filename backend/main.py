@@ -105,10 +105,7 @@ def main():
     uav.end_mission_logic()
     print("Mission completed successfully!")
     # Start MAVProxy with adapted connection string
-    autoconnect.start_mavproxy(connection_string)
+    #autoconnect.start_mavproxy(connection_string)
     
-    
-
-
 if __name__ == "__main__":
     main()

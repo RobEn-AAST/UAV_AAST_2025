@@ -17,21 +17,21 @@
   },
 
   "connection": {
-    "Local_connection_string": "172.30.240.1:14550",
-    "sim_connection_string": "172.30.240.1:14550",
-    "telem_link": "com8",
+    "Local_connection_string": "172.26.16.1:14550",
+    "sim_connection_string": "172.26.16.1:14550",
+    "telem_link": "com10",
     "raspberry_pi_connection_string": "coco"
   },
 
   "servo_pwm": {
     "orange_cube": {
-      "open": 2000,
-      "close": 1700,
+      "open": 1800,
+      "close": 1450,
       "servo_no": 10
     },
     "pixhawk_2_4_8": {
-      "open": 2000,
-      "close": 1700,
+      "open": 2200,
+      "close": 1550,
       "servo_no": 10
     }
   },

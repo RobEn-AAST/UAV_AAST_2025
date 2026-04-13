@@ -3,19 +3,16 @@ from pymavlink import mavutil, mavwp
 from ..utils import new_waypoint
 from .uav_messages import UavMessages
 from .uav_nav import UavNav
-
+from ..utils.geo_math import new_waypoint
 
 class Uav:
     def __init__(self, connection_string: str, config_data_path: str) -> None:
         master: mavutil.mavlink_connection = self.establish_connection(connection_string)
-        self.home_lat, self.home_long = None, None
+        self.home_lat, self.home_long,self.init_bearing = None, None,None
 
         with open(config_data_path, "r") as f:
             config_data = json.load(f)
         self.config_data = config_data
-
-        self.init_bearing = 10  # todo calculate this upon launch
-
         self.master = master
         self.wp_loader = mavwp.MAVWPLoader()
 
@@ -49,12 +46,14 @@ class Uav:
 
     def takeoff_sequence(self):
         self.wp_loader.insert(1, self.nav.takeoff_wp(self.home_lat, self.home_long))
+        #self.wp_loader.insert(1, self.nav.do_set_speed_wp(self, speed = 17))
+
 
     def landingSequence(self) -> bool:
         start_land_dist = self.config_data["flight"]["start_land_dist"]
 
         loiter_lat, loiter_long = new_waypoint(
-            self.home_lat, self.home_long, start_land_dist, self.init_bearing - 180
+            self.home_lat, self.home_long, start_land_dist, self.init_bearing - 150
         )
         
         self.wp_loader.add(self.nav.do_set_speed_wp())
@@ -105,11 +104,12 @@ class Uav:
 
     def add_home_wp(self):
         msg = self.master.recv_match(type="GLOBAL_POSITION_INT", blocking=True)
+        if msg.hdg != 65535:   # 65535 = unknown
+            self.init_bearing = msg.hdg / 100.0
         self.home_lat, self.home_long = (
             msg.lat / 1e7,
             msg.lon / 1e7,
         )  # ? todo shall we make this conditional
-
         self.wp_loader.add(self.nav.home_wp(self.home_lat, self.home_long))
 
     def before_mission_logic(self, fence_list: list[list[float]]):

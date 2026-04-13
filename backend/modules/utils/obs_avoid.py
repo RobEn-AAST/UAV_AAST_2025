@@ -1,53 +1,35 @@
-# TODO TEST
-from .math import get_dist_2_points, get_bearing_2_points, new_waypoint, haversine
+import math
 import numpy as np
-
+from .geo_math import GeoCalculator  # UPDATE IMPORT
 
 def is_obstacle_between(pointA, pointB, obstacle, radius):
-    # Extract coordinates
-    pointA_lat, pointA_long = pointA
-    pointB_lat, pointB_long = pointB
-    obstacle_lat, obstacle_long = obstacle
+    """Enhanced with geodesic precision"""
+    return is_obstacle_between_geodesic(pointA, pointB, obstacle, radius)
 
-    # Convert coordinates to Cartesian (X, Y) for easier calculations
-    def latlon_to_xy(lat, lon):
-        return (lat, lon)
+def is_obstacle_between_geodesic(pointA, pointB, obstacle, radius):
+    """Your existing geodesic implementation"""
+    dist_A_obs = GeoCalculator.get_distance(pointA, obstacle)
+    dist_B_obs = GeoCalculator.get_distance(pointB, obstacle)
+    dist_A_B = GeoCalculator.get_distance(pointA, pointB)
+    
+    # Use triangle area formula to find perpendicular distance
+    s = (dist_A_obs + dist_B_obs + dist_A_B) / 2
+    if s * (s - dist_A_obs) * (s - dist_B_obs) * (s - dist_A_B) <= 0:
+        return False
+    
+    area = math.sqrt(s * (s - dist_A_obs) * (s - dist_B_obs) * (s - dist_A_B))
+    perpendicular_dist = (2 * area) / dist_A_B
+    
+    # Check if the closest point is within the segment
+    bearing_A_B = GeoCalculator.get_bearing(pointA, pointB)
+    bearing_A_obs = GeoCalculator.get_bearing(pointA, obstacle)
+    
+    # Projection parameter
+    t = dist_A_obs * math.cos(math.radians(bearing_A_obs - bearing_A_B)) / dist_A_B
+    
+    return (0 <= t <= 1) and (perpendicular_dist <= radius)
 
-    Ax, Ay = latlon_to_xy(pointA_lat, pointA_long)
-    Bx, By = latlon_to_xy(pointB_lat, pointB_long)
-    Ox, Oy = latlon_to_xy(obstacle_lat, obstacle_long)
-
-    # Vector AB and AO
-    AB = np.array([Bx - Ax, By - Ay])
-    AO = np.array([Ox - Ax, Oy - Ay])
-
-    # Project AO onto AB to find the closest point on the line segment
-    AB_squared = np.dot(AB, AB)
-    if AB_squared == 0:
-        return False  # A and B are the same point
-
-    AO_dot_AB = np.dot(AO, AB)
-    t = AO_dot_AB / AB_squared
-    t = max(0, min(1, t))  # Clamp t to the range [0, 1]
-
-    # Find the projection point
-    projection = np.array([Ax, Ay]) + t * AB
-
-    # Distance from the obstacle to the projection point
-    distance_to_obstacle = haversine(
-        projection[0], projection[1], obstacle_lat, obstacle_long
-    )
-
-    return distance_to_obstacle <= radius
-
-
-safetyMargin = 0
-pointsAroundObs = 1
-
-
-def apply_obs_avoidance(
-    wp_list: list[list[float]], obs_list: list[list[float]], safe_dist: float
-) -> list[list[float]]:
+def apply_obs_avoidance(wp_list: list[list[float]], obs_list: list[list[float]], safe_dist: float) -> list[list[float]]:
     """_summary_
 
     Args:
@@ -74,7 +56,7 @@ def apply_obs_avoidance(
     ):
         dObs = obsRad + safe_dist
 
-        latNew, longNew = new_waypoint(obsLat, obsLong, dObs, obsBearing)
+        latNew, longNew = GeoCalculator.new_waypoint(obsLat, obsLong, dObs, obsBearing)
         # check_obstacles(latA, longA, altA, latNew, longNew, altA, execludeObsI)
         newWaypoints.append([latNew, longNew, altA])
         # check_obstacles(latNew, longNew, altA, latB, longB, altB, execludeObsI)
@@ -89,10 +71,10 @@ def apply_obs_avoidance(
             is_obstacle_between(
                 [latA, longA], [latB, longB], [ObsLat, ObsLong], ObsRad + safe_dist
             )
-            distance_a_b = get_dist_2_points(latA, longA, latB, longB)
-            distance_a_obs = get_dist_2_points(latA, longA, ObsLat, ObsLong)
-            bearing_a_obs = get_bearing_2_points(latA, longA, ObsLat, ObsLong)
-            bearing_a_b = get_bearing_2_points(latA, longA, latB, longB)
+            distance_a_b = GeoCalculator.get_distance([latA, longA], [latB, longB])
+            distance_a_obs = GeoCalculator.get_distance([latA, longA], [ObsLat, ObsLong])
+            bearing_a_obs = GeoCalculator.get_bearing([latA, longA], [ObsLat, ObsLong])
+            bearing_a_b = GeoCalculator.get_bearing([latA, longA], [latB, longB])
             bearingObs = bearing_a_b - 90
 
             if bearing_a_b > bearing_a_obs:
@@ -128,10 +110,10 @@ def apply_obs_avoidance(
         while i < len(obs_list) - 1:
             obs = obs_list[i]
             nextObs = obs_list[i + 1]
-            distance = get_dist_2_points(obs[0], obs[1], nextObs[0], nextObs[1])
-            bearing = get_bearing_2_points(obs[0], obs[1], nextObs[0], nextObs[1])
+            distance = GeoCalculator.get_distance([obs[0], obs[1]], [nextObs[0], nextObs[1]])
+            bearing = GeoCalculator.get_bearing([obs[0], obs[1]], [nextObs[0], nextObs[1]])
             if abs(distance) <= 30:
-                ObsLat_new, ObsLong_new = new_waypoint(
+                ObsLat_new, ObsLong_new = GeoCalculator.new_waypoint(
                     obs[0], obs[1], distance / 2, bearing
                 )
                 # ! TEST THE NEW RADIUS IMPLEMENTATION INSTEAD OF JUST ADDING

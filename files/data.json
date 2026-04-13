@@ -17,8 +17,8 @@
   },
 
   "connection": {
-    "Local_connection_string": "172.26.16.1:14550",
-    "sim_connection_string": "172.26.16.1:14550",
+    "Local_connection_string": "172.19.32.1:14550",
+    "sim_connection_string": "172.19.32.1:14550",
     "telem_link": "com10",
     "raspberry_pi_connection_string": "coco"
   },

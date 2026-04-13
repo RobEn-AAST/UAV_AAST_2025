@@ -53,3 +53,4 @@ trusted_mission_files/
 # =========================
 *.bak
 *.swp
+mav.*

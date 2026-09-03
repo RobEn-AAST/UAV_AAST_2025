@@ -1,8 +1,5 @@
 import math
 from typing import List, Tuple
-from backend.modules.utils.geo_math import GeoCalculator 
-
-geo_calc = GeoCalculator()
 
 # todo try to merge this with the utils/math
 
@@ -20,8 +17,7 @@ def haversine_distance(point1: Tuple[float, float], point2: Tuple[float, float])
 
     a = math.sin(delta_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return geo_calc.get_distance(point1, point2)
-
+    return R * c
 
 def compute_bearing(pointA: Tuple[float, float], pointB: Tuple[float, float]) -> float:
     """
@@ -36,16 +32,16 @@ def compute_bearing(pointA: Tuple[float, float], pointB: Tuple[float, float]) ->
     y = math.sin(delta_lambda) * math.cos(phi2)
     x = math.cos(phi1) * math.sin(phi2) - math.sin(phi1) * math.cos(phi2) * math.cos(delta_lambda)
     theta = math.atan2(y, x)
-    return geo_calc.get_bearing(pointA, pointB)  
+    return math.degrees(theta) % 360.0
 
 def cross_track_distance(pointA: Tuple[float, float], pointB: Tuple[float, float], pointP: Tuple[float, float]) -> float:
     """
     Calculate the cross-track distance from point P to the great circle path through points A and B.
     """
     R = 6371e3  # Earth radius in meters
-    delta_AP = haversine_distance(pointA, pointP)  # This now uses geodesic
-    bearing_AB = compute_bearing(pointA, pointB)   # This now uses geodesic
-    bearing_AP = compute_bearing(pointA, pointP)   # This now uses geodesic
+    delta_AP = haversine_distance(pointA, pointP)
+    bearing_AB = compute_bearing(pointA, pointB)
+    bearing_AP = compute_bearing(pointA, pointP)
     delta_AP_rad = delta_AP / R
     theta_diff = math.radians(bearing_AP - bearing_AB)
     
@@ -61,12 +57,12 @@ def min_distance_to_segment(A: Tuple[float, float], B: Tuple[float, float], P: T
     """
     Calculate the minimum distance from point P to the line segment AB.
     """
-    AB_dist = haversine_distance(A, B)  # This now uses geodesic
+    AB_dist = haversine_distance(A, B)
     if AB_dist == 0:
-        return haversine_distance(A, P)  # This now uses geodesic
+        return haversine_distance(A, P)
     
-    AP_dist = haversine_distance(A, P)  # This now uses geodesic
-    BP_dist = haversine_distance(B, P)  # This now uses geodesic
+    AP_dist = haversine_distance(A, P)
+    BP_dist = haversine_distance(B, P)
     xt = cross_track_distance(A, B, P)
     
     R = 6371e3
@@ -94,9 +90,10 @@ def calc_path_cost(path: List[Tuple[float, float]], fence: List[list[float]], sa
     """
     Calculate the total cost of the UAV path, including penalties for proximity to the fence.
     """
-    PENALTY_PER_VIOLATION = 2000
+    # todo what i there was no fence
+    PENALTY_PER_VIOLATION = 2000  # Adjust penalty value as needed
     
-    # Calculate total path distance (now uses geodesic via haversine_distance)
+    # Calculate total path distance
     total_distance = 0.0
     for i in range(len(path) - 1):
         total_distance += haversine_distance(path[i], path[i+1])
@@ -108,7 +105,7 @@ def calc_path_cost(path: List[Tuple[float, float]], fence: List[list[float]], sa
         B = fence[(i + 1) % len(fence)]
         fence_edges.append((A, B))
     
-    # Check each point for proximity to the fence (now uses geodesic distances)
+    # Check each point for proximity to the fence
     violation_count = 0
     for point in path:
         min_distances = []
@@ -118,7 +115,7 @@ def calc_path_cost(path: List[Tuple[float, float]], fence: List[list[float]], sa
         min_fence_dist = min(min_distances)
         if min_fence_dist < safety:
             violation_count += 1
-            break
+            break # would i want to continue or no tho?
     
     total_cost = total_distance + violation_count * PENALTY_PER_VIOLATION
     return total_cost

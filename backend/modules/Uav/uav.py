@@ -3,16 +3,19 @@ from pymavlink import mavutil, mavwp
 from ..utils import new_waypoint
 from .uav_messages import UavMessages
 from .uav_nav import UavNav
-from ..utils.geo_math import new_waypoint
+
 
 class Uav:
     def __init__(self, connection_string: str, config_data_path: str) -> None:
         master: mavutil.mavlink_connection = self.establish_connection(connection_string)
-        self.home_lat, self.home_long,self.init_bearing = None, None,None
+        self.home_lat, self.home_long = None, None
 
         with open(config_data_path, "r") as f:
             config_data = json.load(f)
         self.config_data = config_data
+
+        self.init_bearing = 10  # todo calculate this upon launch
+
         self.master = master
         self.wp_loader = mavwp.MAVWPLoader()
 
@@ -46,31 +49,28 @@ class Uav:
 
     def takeoff_sequence(self):
         self.wp_loader.insert(1, self.nav.takeoff_wp(self.home_lat, self.home_long))
-        #self.wp_loader.insert(1, self.nav.do_set_speed_wp(self, speed = 17))
-
 
     def landingSequence(self) -> bool:
-        start_land_dist = self.config_data["flight"]["start_land_dist"]
+        start_land_dist = self.config_data["start_land_dist"]
 
-        loiter_lat, loiter_long = new_waypoint(
-            self.home_lat, self.home_long, start_land_dist, self.init_bearing - 150
-        )
-        
-        self.wp_loader.add(self.nav.do_set_speed_wp())
-        self.wp_loader.add(self.nav.loiter_to_alt_wp(loiter_lat, loiter_long))
+        #loiter_lat, loiter_long = new_waypoint(
+            #self.home_lat, self.home_long, start_land_dist, self.init_bearing - 180
+        #)
+
+        #self.wp_loader.add(self.nav.loiter_to_alt_wp(loiter_lat, loiter_long))
 
         land_lat, land_long = new_waypoint(
             self.home_lat, self.home_long, 50, self.init_bearing
         )
         self.wp_loader.add(self.nav.land_wp(land_lat, land_long))
 
-    def add_servo_dropping_wps(self,fl):
-        self.wp_loader.add(self.nav.servo_wp(fl,is_open=True))
+    def add_servo_dropping_wps(self):
+        self.wp_loader.add(self.nav.servo_wp(is_open=True))
 
-        delay_wp = self.nav.delay_wp(self.config_data["flight"]["drop_close_delay"])
+        delay_wp = self.nav.delay_wp(self.config_data["drop_close_delay"])
         self.wp_loader.add(delay_wp)
 
-        self.wp_loader.add(self.nav.servo_wp(fl,is_open=False))
+        self.wp_loader.add(self.nav.servo_wp(is_open=False))
 
     # extra logic idk
 
@@ -104,21 +104,19 @@ class Uav:
 
     def add_home_wp(self):
         msg = self.master.recv_match(type="GLOBAL_POSITION_INT", blocking=True)
-        if msg.hdg != 65535:   # 65535 = unknown
-            self.init_bearing = msg.hdg / 100.0
         self.home_lat, self.home_long = (
             msg.lat / 1e7,
             msg.lon / 1e7,
         )  # ? todo shall we make this conditional
+
         self.wp_loader.add(self.nav.home_wp(self.home_lat, self.home_long))
 
     def before_mission_logic(self, fence_list: list[list[float]]):
+        self.messages.upload_fence(fence_list)
         self.messages.clear_mission()
         self.add_home_wp()
-        self.messages.upload_fence(fence_list,self.home_lat,self.home_long)
         self.takeoff_sequence()
 
     def end_mission_logic(self):
         self.landingSequence()
         self.messages.upload_mission()
-        self.master.close()

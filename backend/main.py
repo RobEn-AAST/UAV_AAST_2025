@@ -10,10 +10,10 @@ from path_manager import PathManager
 
 # Import backend modules
 from backend.modules.utils import apply_obs_avoidance
-from backend.modules.missions import mission1, mission2
+from backend.modules.missions import mission1, mission2, test_mission
 from backend.modules.Uav import Uav
 from backend.modules.survey import camera_modules
-from backend.modules.entries import uav_connect, choose_mission, config_choose, return_wp_list, choose_flight_controller
+from backend.modules.entries import uav_connect, choose_mission, config_choose, return_wp_list
 from frontend.utils import autoconnect
 
 def main():
@@ -44,22 +44,20 @@ def main():
     # Configure mission
     config_choose(config_data)
     mission_index = int(choose_mission())
-    fl =choose_flight_controller()
     
     # Load waypoint files using smart paths
     wp_list, fence_list, obs_list, payload_pos, survey_grid = return_wp_list(
-        config_data['paths']['waypoints_file_csv'],
-        config_data['paths']['fence_file_csv'], 
-        config_data['paths']['obs_csv'],
-        config_data['paths']['payload_file_csv'],
-        config_data['paths']['survey_csv']
-)
-    fence_list.append(fence_list[0].copy())
-
+        config_data['waypoints_file_csv'],
+        config_data['fence_file_csv'], 
+        config_data['obs_csv'],
+        config_data['payload_file_csv'],
+        config_data['survey_csv']
+    )
+    fence_list.append(fence_list[0])
     # Process data
     payload_pos[0].pop()
     for obs in obs_list:
-        obs[-1] = config_data['flight']['obs_raduies']
+        obs[-1] = config_data['obs_raduies']
     for x in fence_list[0::]:
         x.pop()
 
@@ -67,7 +65,7 @@ def main():
     camera = camera_modules["sonya6000"]
 
     # Apply obstacle avoidance
-    wp_list = apply_obs_avoidance(wp_list, obs_list, uav.config_data['flight']["obs_safe_dist"])
+    wp_list = apply_obs_avoidance(wp_list, obs_list, uav.config_data["obs_safe_dist"])
     
     # Prepare mission
     uav.before_mission_logic(fence_list)
@@ -82,12 +80,11 @@ def main():
             survey_grid=survey_grid,
             camera=camera,
             uav=uav,
-            fl=fl
         )
         
     elif mission_index == 2:
         print("Executing Mission 2...")
-        repeat_count = config_data["flight"].get("do_jump_repeat_count")
+        repeat_count = config_data.get("do_jump_repeat_count")         
         mission2(
             original_mission=wp_list,
             payload_pos=payload_pos[0],
@@ -98,14 +95,28 @@ def main():
             repeat_count=repeat_count
         )
         
+    elif mission_index == 3:
+        print("Executing Test Mission...")        
+        test_mission.test_mission(
+            original_mission=wp_list,
+            payload_pos=payload_pos[0],
+            fence_list=fence_list,
+            survey_grid=survey_grid,
+            camera=camera,
+            uav=uav,
+        )
+        
     else:
         raise ValueError(f"Invalid choice: {mission_index}. Please select 1 or 2.")
     
     # Complete mission
     uav.end_mission_logic()
-    print("Mission completed successfully!")
+    
     # Start MAVProxy with adapted connection string
     #autoconnect.start_mavproxy(connection_string)
     
+    print("Mission completed successfully!")
+
+
 if __name__ == "__main__":
     main()

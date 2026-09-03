@@ -1,62 +1,63 @@
 from .Convertor import Convertor
 from .pdf_reader_files import convert_pdf
 import csv
+from os import path
 
 
 def uav_connect(My_data):
-    print("Choose the way of communication:")
-    print("1: '{}' for simulator".format(My_data['connection']['sim_connection_string']))
-    print("2: '{}' for local network".format(My_data['connection']['Local_connection_string']))
-    print("3: '{}' for telemetry".format(My_data['connection']['telem_link']))
-
-    connection_type = input("Enter connection number: ")
-
+    print("choose the way of communication: ")
+    print("connection 1 is '172.26.16.1:14550' for local host")
+    print("connection 2 is for network sharing")
+    print("connection 3 for telemetry system")
+    connection_type = input("Enter connection number:  ")
     if connection_type == '1':
-        return My_data['connection']['sim_connection_string']
-    elif connection_type == '2':
-        return My_data['connection']['Local_connection_string']
-    elif connection_type == '3':
-        return My_data['connection']['telem_link']
-    else:
-        print("Invalid input, defaulting to sim.")
-        return My_data['connection']['sim_connection_string']
+        connection_string=My_data['sim_connection_string']
+    if connection_type == '2':
+        connection_string = My_data['Local_connection_string']
+    if connection_type == '3':
+        connection_string = My_data['telem_link']
+    return connection_string
 
 
 def config_choose(My_data):
-    paths = My_data["paths"]
+    print("\nDo you have ready csv files or you want to convert .waypoints to csv")
+    print("enter 1 if you have ready csv file")
+    print("enter 2 if you want to me to convert .waypoint files")
+    print("enter 3 for .pdf file")
 
-    print("\nDo you have ready CSV files or want to convert .waypoints?")
-    print("1: I have ready CSV")
-    print("2: Convert .waypoints to CSV")
-    print("3: Convert mission PDF")
-
-    data_type = input("Enter option number: ")
+    data_type = input("Enter the option number: ")
 
     if data_type == "2":
         convert = Convertor()
-        convert.convert_to_csv(paths['obs_waypoints'], paths['obs_csv'])
+        convert.convert_to_csv(My_data['obs_waypoints'], My_data['obs_csv'])
+        print("Enter 1111 to convert waypoint, fence, payload and survey files.")
+        print("For any file you don't want to convert, use '0'." \
+        "For example, '1010' will convert the waypoint and payload" \
+        "files while leaving the fence and survey files unchanged.")
 
-        print("Enter a 4-digit binary string to choose which files to convert:")
-        print("1st: waypoints, 2nd: fence, 3rd: payload, 4th: survey")
-        print("Example: '1010' converts waypoints and payload only")
-
-        valid_inputs = {f"{i:04b}" for i in range(16)}
-
+        valid_inputs = {f"{i:04b}" for i in range(2**4)}
         while True:
-            the_choice = input("Enter your choice: ")
+            the_choice = input("Enter the option number: ")
             if the_choice in valid_inputs:
-                flags = [int(c) for c in the_choice]
-
-                if flags[0]: convert.convert_to_csv(paths['waypoints_file_waypoint'], paths['waypoints_file_csv'])
-                if flags[1]: convert.convert_to_csv(paths['fence_file_waypoint'], paths['fence_file_csv'])
-                if flags[2]: convert.convert_to_csv(paths['payload_file_waypoint'], paths['payload_file_csv'])
-                if flags[3]: convert.convert_to_csv(paths['survey_waypoints'], paths['survey_csv'])
+                pars_the_choice = [int(char) for char in the_choice]
+                if pars_the_choice[0]== 1:
+                    convert.convert_to_csv(My_data['waypoints_file_waypoint'], My_data['waypoints_file_csv'])
+                if pars_the_choice[1]== 1:
+                    convert.convert_to_csv(My_data['fence_file_waypoint'], My_data['fence_file_csv'])
+                if pars_the_choice[2]==1:
+                    convert.convert_to_csv(My_data['payload_file_waypoint'], My_data['payload_file_csv'])
+                if pars_the_choice[3]==1:
+                    convert.convert_to_csv(My_data['survey_waypoints'], My_data['survey_csv'])
                 break
+                        
+                
             else:
-                print("Invalid input. Please use a 4-digit binary like '1100'.")
+                print("Invalid option. Please enter a valid 3-digit code (e.g., '111', '101').")
 
     elif data_type == "3":
-        convert_pdf(paths['pdf_mission'], paths['docx_file'])
+
+        filepath = (__file__).replace(path.basename(__file__), '')
+        convert_pdf(filepath + My_data['pdf_mission'])
 
 
 def choose_mission(mission_index=None):
@@ -65,43 +66,34 @@ def choose_mission(mission_index=None):
     return int(input("Enter mission number: "))
 
 
-def return_wp_list(*config_files) -> list:
-    results = []
-    for file_path in config_files:
-        wp_list = []
-        try:
-            with open(file_path, mode='r') as f:
-                csv_reader = csv.reader(f)
-                lines = list(csv_reader)
 
-                for i, row in enumerate(lines[1:]):
-                    try:
-                        row = ' '.join(row).split()
-                        lat, long, alt = float(row[0]), float(row[1]), float(row[2])
-                        wp_list.append([lat, long, alt])
-                    except ValueError as ve:
-                        print(f"Skipping malformed row at line {i + 2}: {row} (Error: {ve})")
-            results.append(wp_list)
-        except FileNotFoundError:
-            print(f"CSV file '{file_path}' not found.")
-            return
-        except Exception as e:
-            print(f"Error reading file {file_path}: {e}")
-            return
-    return (*results[:5],)
 
-def choose_flight_controller():
-    print("\nChoose flight controller:")
-    print("1: Orange Cube")
-    print("2: Pixhawk 2.4.8")
+def return_wp_list(*config_data)->list:
+        results=[]
+        for file in config_data: 
+            wp_list=[]
+            try:
+                    with open(file, mode='r') as f:
+                        csv_reader = csv.reader(f)
 
-    choice = input("Enter number (1-2): ")
+                        # Convert CSV content to a list of lines
+                        lines = list(csv_reader)
 
-    if choice == "1":
-        return "orange_cube"
-    elif choice == "2":
-        return "pixhawk_2_4_8"
+                        # Iterate over the rows, skipping the header
+                        for i, row in enumerate(lines[1:]):
+                            try:
+                                # Ensure the row is processed correctly
+                                row = ' '.join(row).split()
+                                lat, long, alt = float(row[0]), float(row[1]), float(row[2])
+                                wp_list.append([lat, long, alt])
+                            except ValueError as ve:
+                                print(f"Skipping malformed row at line {i + 2}: {row} (Error: {ve})")
+                    results.append(wp_list)
+            except FileNotFoundError:
+                    print(f"CSV file '{config_data}' not found.")
+                    return
+            except Exception as e:
+                    print(f"An error occurred while reading the CSV file: {e}")
+                    return
+        return (*results[:5],)            
 
-    else:
-        print("Invalid input. Defaulting to 'sim'")
-        return "orange_cube"
